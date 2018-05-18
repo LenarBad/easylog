@@ -1,0 +1,13 @@
+.project
+.settings/
+.classpath
+.factorypath
+release.pom
+dependency-reduced-pom.xml
+
+# Intellij project files
+*.eml
+*.iml
+*.ipr
+*.iws
+.idea
