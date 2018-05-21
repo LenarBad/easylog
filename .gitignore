@@ -1,13 +1,19 @@
-.project
-.settings/
-.classpath
-.factorypath
-release.pom
-dependency-reduced-pom.xml
+### Java ###
+# Compiled class file
+*.class
 
-# Intellij project files
-*.eml
+# Log file
+*.log
+
+# Package Files #
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+
+/target/
 *.iml
-*.ipr
-*.iws
-.idea
+/.idea/
