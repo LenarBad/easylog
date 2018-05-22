@@ -4,7 +4,7 @@
 
     <groupId>io.lenar</groupId>
     <artifactId>easy-log</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
     <packaging>jar</packaging>
 
     <name>Easy Log</name>
@@ -43,7 +43,7 @@
     <scm>
         <connection>scm:git:github.com:lenarbad/easylog.git</connection>
         <developerConnection>scm:git:github.com:lenarbad/easylog.git</developerConnection>
-        <url>https://github.com/lenarbad/easylog</url>
+        <url>https://github.com/lenarbad/</url>
     </scm>
 
     <developers>
