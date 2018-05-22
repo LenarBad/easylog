@@ -51,6 +51,7 @@
             <id>owner</id>
             <name>Lenar Badretdinov</name>
             <timezone>UTC-7</timezone>
+            <email>lenar.rf@gmail.com</email>
         </developer>
     </developers>
 
