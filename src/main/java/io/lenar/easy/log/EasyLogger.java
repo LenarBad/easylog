@@ -22,7 +22,7 @@ public class EasyLogger {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Around("execution(* *(..)) && @annotation(com.rei.easy.log.LogCall)")
+    @Around("execution(* *(..)) && @annotation(io.lenar.easy.log.LogCall)")
     public Object logCalls(ProceedingJoinPoint jp) throws Throwable {
         String methodName = jp.getSignature().getName();
         String serviceName = ((MethodSignature) jp.getSignature()).getMethod().getAnnotation(LogCall.class).name();
@@ -42,7 +42,7 @@ public class EasyLogger {
         return result;
     }
 
-    @Around("execution(* *(..)) && @annotation(com.rei.easy.log.LogMethod)")
+    @Around("execution(* *(..)) && @annotation(io.lenar.easy.log.LogMethod)")
     public Object logMethods(ProceedingJoinPoint jp) throws Throwable {
         String methodName = jp.getSignature().getName();
         Map<String, Object> params = getMethodParameters(jp);
