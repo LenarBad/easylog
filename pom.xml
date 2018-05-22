@@ -17,6 +17,10 @@
         <version>7</version>
     </parent>
 
+    <properties>
+        <project.scm.id>github</project.scm.id>
+    </properties>
+    
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
