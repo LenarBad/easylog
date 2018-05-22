@@ -39,7 +39,7 @@
     <scm>
         <connection>scm:git:github.com:lenarbad/easylog.git</connection>
         <developerConnection>scm:git:github.com:lenarbad/easylog.git</developerConnection>
-        <url>https://github.com/LenarBad/EasyLog.git</url>
+        <url>https://github.com/lenarbad/easylog</url>
     </scm>
 
     <developers>
