@@ -37,7 +37,6 @@
     </licenses>
 
     <scm>
-        <id>github</id>
         <connection>scm:git:github.com:lenarbad/easylog.git</connection>
         <developerConnection>scm:git:github.com:lenarbad/easylog.git</developerConnection>
         <url>https://github.com/lenarbad/easylog</url>
