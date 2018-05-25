@@ -1,13 +1,14 @@
 package io.lenar.easy.log;
 
-import java.util.HashMap;
+import static io.lenar.easy.log.util.JPUtil.getMethod;
+import static io.lenar.easy.log.util.JPUtil.getMethodParameters;
+
+import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.reflect.MethodSignature;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,24 +21,19 @@ public class EasyLogger {
 
     private Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected static Logger logger = LoggerFactory.getLogger("EasyLogger");
 
     @Around("execution(* *(..)) && @annotation(io.lenar.easy.log.LogCall)")
     public Object logCalls(ProceedingJoinPoint jp) throws Throwable {
-        String methodName = jp.getSignature().getName();
-        String serviceName = ((MethodSignature) jp.getSignature()).getMethod().getAnnotation(LogCall.class).name();
-        Map<String, Object> request = getMethodParameters(jp);
+        Method method = getMethod(jp);
 
-        logger.info(serviceName + " CALL:");
-        logger.info("-> " + methodName + " Request \n" + gson.toJson(request) + "\n");
+        logRequest(method.getAnnotation(LogCall.class).name(), method.getName(), getMethodParameters(jp));
 
         int startTime = DateTime.now().getMillisOfDay();
         Object result = jp.proceed(jp.getArgs());
-
         int endTime = DateTime.now().getMillisOfDay();
 
-        logger.info("Response time: " + (endTime - startTime) + "ms");
-        logger.info("<- " + methodName + " Response: \n" + gson.toJson(result) + "\n");
+        logResponse(endTime - startTime, getMethod(jp).getName(), result);
 
         return result;
     }
@@ -64,17 +60,22 @@ public class EasyLogger {
         return result;
     }
 
-    /**
-     * This reads names and values of all parameters from
-     * ProceedingJoinPoint jp as a map
-     */
-    private Map<String, Object> getMethodParameters(ProceedingJoinPoint jp) {
-        String[] keys = ((MethodSignature) jp.getSignature()).getParameterNames();
-        Object[] values = jp.getArgs();
+    private void logRequest(String serviceName, String methodName, Map<String, Object> request) {
+        logger.info(requestMessage(serviceName, methodName, request));
+    }
 
-        Map<String, Object> params = new HashMap<>();
-        IntStream.range(0, keys.length).boxed().forEach(i -> params.put(keys[i], values[i]));
-        return params;
+    private String requestMessage(String serviceName, String methodName, Map<String, Object> request) {
+        String message = "\n";
+        if (!serviceName.isEmpty()) message = message + serviceName + " CALL:\n";
+        return message + "-> " + methodName + " Request \n" + gson.toJson(request) + "\n";
+    }
+
+    private void logResponse(int responseTime, String methodName, Object result) {
+        logger.info(responseMessage(responseTime, methodName, result));
+    }
+
+    private String responseMessage(int responseTime, String methodName, Object result) {
+        return "Response time: " + responseTime + "ms\n" + "<- " + methodName + " Response: \n" + gson.toJson(result) + "\n";
     }
 
 }
