@@ -39,4 +39,4 @@ Report your issues or suggestions [here](https://github.com/LenarBad/EasyLog/iss
 
 ## Contrubutions
 
-This is an open opensource project - feel free to send your pull requests
+This is an opensource project - feel free to send your pull requests
