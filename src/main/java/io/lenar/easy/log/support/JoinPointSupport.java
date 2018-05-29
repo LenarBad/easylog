@@ -1,4 +1,4 @@
-package io.lenar.easy.log.util;
+package io.lenar.easy.log.support;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -8,9 +8,9 @@ import java.util.stream.IntStream;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 
-public class JPUtil {
+public class JoinPointSupport {
 
-    public static Method getMethod(ProceedingJoinPoint jp) {
+    public Method getMethod(ProceedingJoinPoint jp) {
         return ((MethodSignature) jp.getSignature()).getMethod();
     }
 
@@ -18,7 +18,7 @@ public class JPUtil {
      * This reads names and values of all parameters from
      * ProceedingJoinPoint jp as a map
      */
-    public static Map<String, Object> getMethodParameters(ProceedingJoinPoint jp) {
+    public Map<String, Object> getMethodParameters(ProceedingJoinPoint jp) {
         String[] keys = ((MethodSignature) jp.getSignature()).getParameterNames();
         Object[] values = jp.getArgs();
 
