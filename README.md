@@ -32,6 +32,13 @@ public class MyLogger extends EasyLogger {
 ### 3. Method level @LogCall and @LogMethod annotations 
 
 Annotate methods that you want to log with @LogCall or @LogMethod annotations 
+#### Example
+```
+@LogCall(name="User Web Service")
+public User createUser(CreateUserForm form) {
+...
+}
+```
 
 ### 4. Class level @LogCalls and @LogMethods annotations 
 
