@@ -12,7 +12,7 @@ Currently from the box EasyLog supports Spring projects only.
 <dependency>    
     <groupId>io.lenar</groupId>
     <artifactId>easy-log</artifactId>
-    <version>0.0.4</version>
+    <version>0.1.0</version>
 </dependency>
 ```
 
@@ -29,9 +29,13 @@ public class MyLogger extends EasyLogger {
 }
 ```
 
-### 3. @LogCall and @LogMethod annotations 
+### 3. Method level @LogCall and @LogMethod annotations 
 
 Annotate methods that you want to log with @LogCall or @LogMethod annotations 
+
+### 4. Class level @LogCalls and @LogMethods annotations 
+
+Annotate a class with @LogCalls or @LogMethods annotations to log all methods of the class 
 
 ## Issues and suggestions
 

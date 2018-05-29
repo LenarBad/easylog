@@ -10,6 +10,13 @@ import org.aspectj.lang.reflect.MethodSignature;
 
 public class JoinPointSupport {
 
+    /**
+     * Returns the method that was called
+     *
+     * @param jp
+     * @return Method
+     */
+
     public Method getMethod(ProceedingJoinPoint jp) {
         return ((MethodSignature) jp.getSignature()).getMethod();
     }
