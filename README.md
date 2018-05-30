@@ -51,3 +51,7 @@ Report your issues or suggestions [here](https://github.com/LenarBad/EasyLog/iss
 ## Contrubutions
 
 This is an opensource project - feel free to send your pull requests
+
+Hot issues that need to be worked on:
+
+ - [#10 Support non-Spring projects](https://github.com/LenarBad/EasyLog/issues/10)
