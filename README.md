@@ -12,7 +12,7 @@ Currently from the box EasyLog supports Spring projects only.
 <dependency>    
     <groupId>io.lenar</groupId>
     <artifactId>easy-log</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.1</version>
 </dependency>
 ```
 
