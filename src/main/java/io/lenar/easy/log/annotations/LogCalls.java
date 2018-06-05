@@ -1,14 +1,20 @@
 package io.lenar.easy.log.annotations;
 
+import static io.lenar.easy.log.Level.INFO;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import io.lenar.easy.log.Level;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
 public @interface LogCalls {
 
     String name() default "";
+
+    Level level() default INFO;
 
 }
