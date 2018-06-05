@@ -20,22 +20,22 @@ public class EasyLogger extends JoinPointLogger {
 
     @Around("anyMethod() && @annotation(annotation)")
     public Object logCall(ProceedingJoinPoint jp, LogCall annotation) throws Throwable {
-        return logAsCall(jp, annotation.name());
+        return logAsCall(jp, annotation.name(), annotation.level());
     }
 
     @Around("anyMethod() && @within(annotation)")
     public Object logCalls(ProceedingJoinPoint jp, LogCalls annotation) throws Throwable {
-        return logAsCall(jp, annotation.name());
+        return logAsCall(jp, annotation.name(), annotation.level());
     }
 
     @Around("anyMethod() && @annotation(annotation)")
     public Object logMethod(ProceedingJoinPoint jp, LogMethod annotation) throws Throwable {
-        return logAsMethod(jp);
+        return logAsMethod(jp, annotation.level());
     }
 
     @Around("anyMethod() && @within(annotation)")
     public Object logMethods(ProceedingJoinPoint jp, LogMethods annotation) throws Throwable {
-        return logAsMethod(jp);
+        return logAsMethod(jp, annotation.level());
     }
 
 

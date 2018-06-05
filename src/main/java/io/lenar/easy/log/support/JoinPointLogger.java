@@ -3,7 +3,7 @@ package io.lenar.easy.log.support;
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import io.lenar.easy.log.support.JoinPointSupport;
+import io.lenar.easy.log.Level;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.joda.time.DateTime;
@@ -19,56 +19,65 @@ public class JoinPointLogger extends JoinPointSupport {
 
     protected static Logger logger = LoggerFactory.getLogger("EasyLogger");
 
-    public Object logAsCall(ProceedingJoinPoint jp, String serviceName) throws Throwable {
+    public Object logAsCall(ProceedingJoinPoint jp, String serviceName, Level level) throws Throwable {
         Method method = getMethod(jp);
 
-        logRequest(serviceName, method.getName(), getMethodParameters(jp));
+        logRequest(serviceName, method.getName(), getMethodParameters(jp), level);
 
         int startTime = DateTime.now().getMillisOfDay();
         Object result = jp.proceed(jp.getArgs());
         int endTime = DateTime.now().getMillisOfDay();
 
-        logResponse(endTime - startTime, method.getName(), result);
+        logResponse(endTime - startTime, method.getName(), result, level);
 
         return result;
     }
 
-    public Object logAsMethod(ProceedingJoinPoint jp) throws Throwable {
+    public Object logAsMethod(ProceedingJoinPoint jp, Level level) throws Throwable {
         Method method = getMethod(jp);
 
-        logMethodInvocation(method.getName(), getMethodParameters(jp));
+        logMethodInvocation(method.getName(), getMethodParameters(jp), level);
 
         int startTime = DateTime.now().getMillisOfDay();
         Object result = jp.proceed(jp.getArgs());
         int endTime = DateTime.now().getMillisOfDay();
 
-        logMethodReturn(endTime - startTime, method.getName(), result);
+        logMethodReturn(endTime - startTime, method.getName(), result, level);
 
         return result;
     }
 
-    private void logRequest(String serviceName, String methodName, Map<String, Object> request) {
+    private void logRequest(String serviceName, String methodName, Map<String, Object> request, Level level) {
         String message = "\n";
         if (!serviceName.isEmpty()) message = message + serviceName + " CALL:\n";
         message = message + "-> " + methodName + " Request \n" + gson.toJson(request) + "\n";
-        logger.info(message);
+        log(message, level);
     }
 
-    private void logResponse(int responseTime, String methodName, Object result) {
+    private void logResponse(int responseTime, String methodName, Object result, Level level) {
         String message = "Response time: " + responseTime + "ms\n" + "<- " + methodName + " Response: \n" + gson.toJson(result) + "\n";
-        logger.info(message);
+        log(message, level);
     }
 
-    private void logMethodInvocation(String methodName, Map<String, Object> params) {
+    private void logMethodInvocation(String methodName, Map<String, Object> params, Level level) {
         String message = "\n-> Method " + methodName;
         message = message + (params.isEmpty() ? " without parameters" : " with parameters \n" + gson.toJson(params) + "\n");
-        logger.info(message);
+        log(message, level);
     }
 
-    private void logMethodReturn(int executionTime, String methodName, Object result) {
+    private void logMethodReturn(int executionTime, String methodName, Object result, Level level) {
         String message = "Execution time: + " + executionTime + "ms\n";
         message = message + "<- " + methodName + " returned: \n" + gson.toJson(result) + "\n";
-        logger.info(message);
+        log(message, level);
+    }
+
+    private void log(String message, Level level) {
+        switch (level) {
+            case DEBUG: logger.debug(message); break;
+            case INFO: logger.info(message); break;
+            case WARN: logger.warn(message); break;
+            case ERROR: logger.error(message);
+        }
     }
 
 }
