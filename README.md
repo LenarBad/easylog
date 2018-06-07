@@ -1,4 +1,6 @@
-# EasyLog
+![Version](https://img.shields.io/maven-central/v/io.lenar/easy-log.svg)
+
+# EasyLog 
 
 EasyLog is an open source library for logging in Java projects.
 
