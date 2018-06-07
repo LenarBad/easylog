@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/maven-central/v/io.lenar/easy-log.svg)
+[![Maven Central](https://img.shields.io/maven-central/v/io.lenar/easy-log.svg)](https://maven-badges.herokuapp.com/maven-central/io.lenar/easy-log)
 
 # EasyLog 
 
