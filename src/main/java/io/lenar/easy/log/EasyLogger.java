@@ -1,6 +1,9 @@
 package io.lenar.easy.log;
 
 
+import static io.lenar.easy.log.Type.METHOD;
+
+import io.lenar.easy.log.annotations.LogIt;
 import io.lenar.easy.log.annotations.LogCall;
 import io.lenar.easy.log.annotations.LogCalls;
 import io.lenar.easy.log.annotations.LogMethod;
@@ -38,5 +41,10 @@ public class EasyLogger extends JoinPointLogger {
         return logAsMethod(jp, annotation.level());
     }
 
+    @Around("anyMethod() && (@annotation(annotation) || @within(annotation))")
+    public Object logMethodLevel(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
+        if (annotation.type().equals(METHOD)) return logAsMethod(jp, annotation.level());
+        return logAsCall(jp, annotation.name(), annotation.level());
+    }
 
 }
