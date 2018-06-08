@@ -6,7 +6,6 @@ import java.util.Map;
 import io.lenar.easy.log.Level;
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +23,9 @@ public class JoinPointLogger extends JoinPointSupport {
 
         logRequest(serviceName, method.getName(), getMethodParameters(jp), level);
 
-        int startTime = DateTime.now().getMillisOfDay();
+        long startTime = System.currentTimeMillis();
         Object result = jp.proceed(jp.getArgs());
-        int endTime = DateTime.now().getMillisOfDay();
+        long endTime = System.currentTimeMillis();
 
         logResponse(endTime - startTime, method.getName(), result, level);
 
@@ -38,9 +37,9 @@ public class JoinPointLogger extends JoinPointSupport {
 
         logMethodInvocation(method.getName(), getMethodParameters(jp), level);
 
-        int startTime = DateTime.now().getMillisOfDay();
+        long startTime = System.currentTimeMillis();
         Object result = jp.proceed(jp.getArgs());
-        int endTime = DateTime.now().getMillisOfDay();
+        long endTime = System.currentTimeMillis();
 
         logMethodReturn(endTime - startTime, method.getName(), result, level);
 
@@ -54,7 +53,7 @@ public class JoinPointLogger extends JoinPointSupport {
         log(message, level);
     }
 
-    private void logResponse(int responseTime, String methodName, Object result, Level level) {
+    private void logResponse(long responseTime, String methodName, Object result, Level level) {
         String message = "Response time: " + responseTime + "ms\n" + "<- " + methodName + " Response: \n" + gson.toJson(result) + "\n";
         log(message, level);
     }
@@ -65,7 +64,7 @@ public class JoinPointLogger extends JoinPointSupport {
         log(message, level);
     }
 
-    private void logMethodReturn(int executionTime, String methodName, Object result, Level level) {
+    private void logMethodReturn(long executionTime, String methodName, Object result, Level level) {
         String message = "Execution time: + " + executionTime + "ms\n";
         message = message + "<- " + methodName + " returned: \n" + gson.toJson(result) + "\n";
         log(message, level);
