@@ -82,7 +82,10 @@ public User createUser(String email, String name) {
 ### 6. Logging Level parameter
 
 Also you can pass the logging level parameter <code>level</code> with any annotation.
+
 Available options:  <code>Level.DEBUG</code>, <code>Level.INFO</code>, <code>Level.WARN</code>, <code>Level.ERROR</code>
+
+By default <code>level=Level.INFO</code>
 
 ## Issues and suggestions
 
