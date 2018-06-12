@@ -14,7 +14,7 @@ Currently from the box EasyLog supports Spring projects only.
 <dependency>    
     <groupId>io.lenar</groupId>
     <artifactId>easy-log</artifactId>
-    <version>0.3.1</version>
+    <version>0.9.1</version>
 </dependency>
 ```
 
@@ -31,38 +31,22 @@ public class MyLogger extends EasyLogger {
 }
 ```
 
-### 3. Method level @LogCall and @LogMethod annotations 
+### 2. @LogIt annotation 
 
-Annotate methods that you want to log with @LogCall or @LogMethod annotations 
+#### Method level
 
-#### Example
+Annotate the methods that you want to log with <code>@LogIt</code> annotation 
 
 ```java
-@LogCall(name="User Web Service")
+@LogIt
 public User createUser(CreateUserForm form) {
 ...
 }
 ```
+#### Class level
 
-### 4. Class level @LogCalls and @LogMethods annotations 
+If you need to log all methods of a class you can annotate the class with <code>@LogIt</code> annotation
 
-Annotate a class with @LogCalls or @LogMethods annotations to log all methods of the class 
-
-### 5. Any level (Class or Method) @LogIt annotation
-
- - Annotate a class with @LogIt to log all class's methods
- - Annotate a method with @LogIt to log only that method
- 
- <code>@LogIt(type=Type.METHOD)</code> - "Method style" logging (by default)
- 
- <code>@LogIt(type=Type.CALL)</code> - "Service call style" logging 
- 
- <code>@LogIt(type=Type.SERVICE)</code> - "Service call style" logging 
- 
- <code>@LogIt(name="User Web Service", type=Type.CALL)</code> - "Service call style" logging for the *User Web Service*
- 
-#### Default example - class level
- 
  ```java
 @LogIt
 public class ClassWithMethods {
@@ -70,22 +54,35 @@ public class ClassWithMethods {
 }
 ```
 
-#### Default example - method level
+### 3. Annotation parameters
+
+#### Logging Level parameter
+
+Also you can pass the logging level parameter <code>level</code> with any annotation.
+
+Available options:  <code>DEBUG</code>, <code>INFO</code>, <code>WARN</code>, <code>ERROR</code>
+
+By default <code>level=Level.INFO</code>
+
+#### Label
+
+With <code>@LogIt</code> you can set another parameter - <code>String label</code>.
+<code>label</code> lets us create labels/ids in the logs to simplify a search for specific entries. 
 
  ```java
-@LogIt
-public User createUser(String email, String name) {
+@LogIt(label="DEBUGGING ISSUE 1234"
+public class ClassWithMethods {
 ...
 }
 ```
 
-### 6. Logging Level parameter
-
-Also you can pass the logging level parameter <code>level</code> with any annotation.
-
-Available options:  <code>Level.DEBUG</code>, <code>Level.INFO</code>, <code>Level.WARN</code>, <code>Level.ERROR</code>
-
-By default <code>level=Level.INFO</code>
+ ```java
+@LogIt(label="USER SERVICE CALL"
+public class ClassWithMethods {
+...
+}
+```
+By default <code>label=""</code>
 
 ## Issues and suggestions
 
