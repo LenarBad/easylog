@@ -95,3 +95,5 @@ This is an opensource project - feel free to send your pull requests
 Hot issues to work on:
 
  - [#10 Support non-Spring projects](https://github.com/LenarBad/EasyLog/issues/10)
+ - [#15 Add JavaDocs](https://github.com/LenarBad/EasyLog/issues/15)
+ - [#16 Add Unit Tests](https://github.com/LenarBad/EasyLog/issues/16)
