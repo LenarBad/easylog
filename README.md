@@ -70,14 +70,14 @@ With <code>@LogIt</code> you can set another parameter - <code>String label</cod
 <code>label</code> lets us create labels/ids in the logs to simplify a search for specific entries. 
 
  ```java
-@LogIt(label="DEBUGGING ISSUE 1234"
+@LogIt(label="DEBUGGING ISSUE 1234", level=DEBUG)
 public class ClassWithMethods {
 ...
 }
 ```
 
  ```java
-@LogIt(label="USER SERVICE CALL"
+@LogIt(label="USER SERVICE CALL")
 public class ClassWithMethods {
 ...
 }
