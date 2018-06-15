@@ -1,6 +1,7 @@
 package io.lenar.easy.log.support;
 
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
@@ -14,12 +15,14 @@ public class JoinPointSupport {
      * This reads names and values of all parameters from
      * ProceedingJoinPoint jp as a map
      */
-    protected Map<String, Object> getMethodParameters(ProceedingJoinPoint jp) {
+    protected Map<String, Object> getMethodParameters(ProceedingJoinPoint jp, String[] ignoreList) {
         String[] keys = ((MethodSignature) jp.getSignature()).getParameterNames();
         Object[] values = jp.getArgs();
 
         Map<String, Object> params = new HashMap<>();
-        IntStream.range(0, keys.length).boxed().forEach(i -> params.put(keys[i], values[i]));
+        IntStream.range(0, keys.length).boxed().forEach(i -> {
+            if (!isIgnored(ignoreList, keys[i])) params.put(keys[i], values[i]);
+        });
         return params;
     }
 
@@ -29,10 +32,11 @@ public class JoinPointSupport {
      *          public BookResponse BookServiceClient.createBook(Book book)
      *
      * @param jp ProceedingJoinPoint
-     * @param showModifier true if we wnat to see modifiers like public, private in the method signature
+     * @param ignoreList List of parameters that shouldn't be logged
+     * @param showModifier true if we want to see modifiers like public, private in the method signature
      * @return
      */
-    protected String getMethodSignatureAsString(ProceedingJoinPoint jp, boolean showModifier) {
+    protected String getMethodSignatureAsString(ProceedingJoinPoint jp, boolean showModifier, String[] ignoreList) {
         MethodSignature methodSignature = getMethodSignature(jp);
         String returnedType = methodSignature.getReturnType().getSimpleName();
         String signature = methodSignature.toShortString();
@@ -44,6 +48,7 @@ public class JoinPointSupport {
             String params = "";
             for (int i = 0; i < names.length; i++) {
                 params = params + types[i].getSimpleName() + " " + names[i];
+                if (isIgnored(ignoreList, names[i])) params = params + "<NOT_LOGGED>";
                 if (i < names.length - 1) params = params + ", ";
             }
             signature = signature.replace("..", params);
@@ -59,6 +64,10 @@ public class JoinPointSupport {
 
     private MethodSignature getMethodSignature(ProceedingJoinPoint jp) {
         return ((MethodSignature) jp.getSignature());
+    }
+
+    private boolean isIgnored(String[] ignoreList, String parameterName) {
+        return ignoreList.length != 0 && Arrays.asList(ignoreList).contains(parameterName);
     }
 
 }
