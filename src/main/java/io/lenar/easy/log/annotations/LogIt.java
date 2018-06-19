@@ -19,7 +19,6 @@ public @interface LogIt {
 
     String[] ignoreParameters() default {};
 
-    // Only for String fields
     String[] maskFields() default {};
 
 }
