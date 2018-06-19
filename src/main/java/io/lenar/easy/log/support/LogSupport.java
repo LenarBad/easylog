@@ -1,6 +1,7 @@
 package io.lenar.easy.log.support;
 
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -9,7 +10,15 @@ import java.util.stream.IntStream;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 
-public class JoinPointSupport {
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
+
+public class LogSupport {
+
+    private Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+
+    protected String MASKED_VALUE = "XXXMASKEDXXX";
 
     /**
      * This reads names and values of all parameters from
@@ -68,6 +77,54 @@ public class JoinPointSupport {
 
     private boolean isIgnored(String[] ignoreList, String parameterName) {
         return ignoreList.length != 0 && Arrays.asList(ignoreList).contains(parameterName);
+    }
+
+    protected String objectToString(Object object) {
+        return gson.toJson(object);
+    }
+
+    protected String objectToString(Object object, String[] maskFields) {
+        if (object == null) return null;
+        if (isPrimitiveOrString(object)) return object.toString();
+        if (maskFields.length == 0) objectToString(object);
+        return gson.toJson(getMap(object, maskFields));
+    }
+
+    private Map<String, Object> getMap(Object object, String[] maskFields) {
+        Type itemsMapType = new TypeToken<Map<String, Object>>() {}.getType();
+        Map<String, Object> map = gson.fromJson(gson.toJson(object), itemsMapType);
+        Map<String, Object> newMap = new HashMap<>();
+
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            if (entry.getValue() != null && Arrays.asList(maskFields).contains(entry.getKey())) {
+                newMap.put(entry.getKey(), MASKED_VALUE);
+            } else {
+                if (entry.getValue() != null && !isPrimitiveOrString(entry.getValue())) {
+                    newMap.put(entry.getKey(), getMap(entry.getValue(), maskFields));
+                } else {
+                    newMap.put(entry.getKey(), entry.getValue());
+                }
+            }
+        }
+        return newMap;
+    }
+
+    private Object cloneObject(Object object) {
+        return gson.fromJson(gson.toJsonTree(object).deepCopy(), Object.class);
+    }
+
+    private boolean isPrimitiveOrString(Object object) {
+        return
+                object.getClass() == Boolean.class ||
+                        object.getClass() == Character.class ||
+                        object.getClass() == Byte.class ||
+                        object.getClass() == Short.class ||
+                        object.getClass() == Integer.class ||
+                        object.getClass() == Long.class ||
+                        object.getClass() == Float.class ||
+                        object.getClass() == Double.class ||
+                        object.getClass() == Void.class ||
+                        object.getClass() == String.class;
     }
 
 }
