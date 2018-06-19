@@ -14,7 +14,7 @@ Currently from the box EasyLog supports Spring projects only.
 <dependency>    
     <groupId>io.lenar</groupId>
     <artifactId>easy-log</artifactId>
-    <version>0.9.1</version>
+    <version>0.9.2</version>
 </dependency>
 ```
 
@@ -54,20 +54,32 @@ public class ClassWithMethods {
 }
 ```
 
-### 3. Annotation parameters
+### 3. Logging Level
 
-#### Logging Level parameter
+You can set the logging level by passing the parameter <code>level</code> with ```@LogIt``` annotation.
 
-Also you can pass the logging level parameter <code>level</code> with any annotation.
+Available options:  ```DEBUG```, ```INFO```, ```WARN```, ```ERROR```
 
-Available options:  <code>DEBUG</code>, <code>INFO</code>, <code>WARN</code>, <code>ERROR</code>
+By default ```level=Level.INFO```
 
-By default <code>level=Level.INFO</code>
+### 4. Labels
 
-#### Label
+Labels help you to simplify a search for specific entries in the logs.
+Just pass another annotation parameter ```String label```. 
 
-With <code>@LogIt</code> you can set another parameter - <code>String label</code>.
-<code>label</code> lets us create labels/ids in the logs to simplify a search for specific entries. 
+### 5. Exclude parameters from logging
+
+You can skip some parameters and not log them with ```String[] ignoreParameters```. 
+
+By default there is no ignored parameter.
+
+### 6. Mask fields in response/return
+
+```String[] maskFields() default {}``` - allows to mask in the log (```"XXXMASKEDXXX"```) actual values for field names in the list for the results returned by the method.
+
+By default there is no masked field
+
+## Examples
 
  ```java
 @LogIt(label="DEBUGGING ISSUE 1234", level=DEBUG)
@@ -82,7 +94,20 @@ public class ClassWithMethods {
 ...
 }
 ```
-By default <code>label=""</code>
+
+ ```java
+@LogIt(label="USER CARDS", maskFields={"cardNumber", "pin"})
+public UserCardsInfo getUserCards(..) {
+...
+}
+```
+
+ ```java
+@LogIt(label="USER SERVICE CALL", maskFields={"password"})
+public User login(String userName, String password) {
+...
+}
+```
 
 ## Issues and suggestions
 
