@@ -17,4 +17,8 @@ public @interface LogIt {
 
     Level level() default INFO;
 
+    String[] ignoreParameters() default {};
+
+    String[] maskFields() default {};
+
 }
