@@ -2,8 +2,11 @@ package io.lenar.easy.log.support;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
@@ -18,7 +21,7 @@ public class LogSupport {
 
     private Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
 
-    protected String MASKED_VALUE = "XXXMASKEDXXX";
+    private static final String MASKED_VALUE = "XXXMASKEDXXX";
 
     /**
      * This reads names and values of all parameters from
@@ -79,15 +82,25 @@ public class LogSupport {
         return ignoreList.length != 0 && Arrays.asList(ignoreList).contains(parameterName);
     }
 
-    protected String objectToString(Object object) {
-        return gson.toJson(object);
-    }
-
     protected String objectToString(Object object, String[] maskFields) {
         if (object == null) return null;
         if (isPrimitiveOrString(object)) return object.toString();
-        if (maskFields.length == 0) objectToString(object);
+        if (maskFields.length == 0) return objectToString(object);
+        if (Collection.class.isAssignableFrom(object.getClass())) return collectionToString(object, maskFields);
         return gson.toJson(getMap(object, maskFields));
+    }
+
+    private String collectionToString(Object object, String[] maskFields) {
+        Collection collection = (Collection<Object>) object;
+        List<Object> list = new ArrayList<>();
+        for (Object item : collection) {
+            list.add(getMap(item, maskFields));
+        }
+        return gson.toJson(list);
+    }
+
+    protected String objectToString(Object object) {
+        return gson.toJson(object);
     }
 
     private Map<String, Object> getMap(Object object, String[] maskFields) {
@@ -97,12 +110,23 @@ public class LogSupport {
 
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             if (entry.getValue() != null && Arrays.asList(maskFields).contains(entry.getKey())) {
+                // Replace the field that should be masked if not null
                 newMap.put(entry.getKey(), MASKED_VALUE);
             } else {
-                if (entry.getValue() != null && !isPrimitiveOrString(entry.getValue())) {
-                    newMap.put(entry.getKey(), getMap(entry.getValue(), maskFields));
-                } else {
+                if (entry.getValue() == null || isPrimitiveOrString(entry.getValue())) {
+                    // As is if null/primitive/String
                     newMap.put(entry.getKey(), entry.getValue());
+                } else {
+                    if (Collection.class.isAssignableFrom(entry.getValue().getClass())) {
+                        // As a list of maps if collection
+                        List<Object> list = new ArrayList<>();
+                        for (Object item : (Collection<Object>) entry.getValue()) {
+                            list.add(getMap(item, maskFields));
+                        }
+                        newMap.put(entry.getKey(), list);
+                    } else {
+                        newMap.put(entry.getKey(), getMap(entry.getValue(), maskFields));
+                    }
                 }
             }
         }
