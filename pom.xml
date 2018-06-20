@@ -4,7 +4,7 @@
 
     <groupId>io.lenar</groupId>
     <artifactId>easy-log</artifactId>
-    <version>0.9.4</version>
+    <version>0.9.5-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Easy Log</name>
