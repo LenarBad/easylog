@@ -109,6 +109,12 @@ public User login(String userName, String password) {
 }
 ```
 
+## Warning
+
+Don't use the ```maskFields``` parameter for complex objects in highly loaded applications where the performance is the most importance thing.
+
+It walks through all object's fields recursively to find all the fields that should be masked.
+
 ## Issues and suggestions
 
 Report your issues or suggestions [here](https://github.com/LenarBad/EasyLog/issues)
