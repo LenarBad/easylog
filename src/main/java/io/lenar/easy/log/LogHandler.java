@@ -1,17 +1,20 @@
-package io.lenar.easy.log.support;
+package io.lenar.easy.log;
+
+import static io.lenar.easy.log.support.PJPSupport.getMethodParameters;
+import static io.lenar.easy.log.support.PJPSupport.getMethodSignatureAsString;
+import static io.lenar.easy.log.support.PJPSupport.isVoid;
 
 import java.util.Map;
 
-import io.lenar.easy.log.Level;
 import io.lenar.easy.log.annotations.LogIt;
+import io.lenar.easy.log.support.LogSupport;
 
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JoinPointLogger extends LogSupport {
+public class LogHandler extends LogSupport {
 
-    private static Logger logger = LoggerFactory.getLogger("EasyLogger");
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger("EasyLogger");
 
     protected Object logMethod(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
         logMethodInvocation(
@@ -44,7 +47,6 @@ public class JoinPointLogger extends LogSupport {
         if (!isVoid) message = message + objectToString(result, annotation.maskFields()) + "\n";
         log(message, annotation.level());
     }
-
 
     private void log(String message, Level level) {
         switch (level) {

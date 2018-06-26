@@ -1,6 +1,7 @@
 package io.lenar.easy.log.support;
 
-import java.lang.reflect.Modifier;
+import static io.lenar.easy.log.support.LogSupport.ObjectType.*;
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,10 +9,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
-
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.reflect.MethodSignature;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -23,71 +20,17 @@ public class LogSupport {
 
     private static final String MASKED_VALUE = "XXXMASKEDXXX";
 
-    /**
-     * This reads names and values of all parameters from
-     * ProceedingJoinPoint jp as a map
-     */
-    protected Map<String, Object> getMethodParameters(ProceedingJoinPoint jp, String[] ignoreList) {
-        String[] keys = ((MethodSignature) jp.getSignature()).getParameterNames();
-        Object[] values = jp.getArgs();
-
-        Map<String, Object> params = new HashMap<>();
-        IntStream.range(0, keys.length).boxed().forEach(i -> {
-            if (!isIgnored(ignoreList, keys[i])) params.put(keys[i], values[i]);
-        });
-        return params;
-    }
-
-    /**
-     * Retutns method signature as a String
-     * Example:
-     *          public BookResponse BookServiceClient.createBook(Book book)
-     *
-     * @param jp ProceedingJoinPoint
-     * @param ignoreList List of parameters that shouldn't be logged
-     * @param showModifier true if we want to see modifiers like public, private in the method signature
-     * @return
-     */
-    protected String getMethodSignatureAsString(ProceedingJoinPoint jp, boolean showModifier, String[] ignoreList) {
-        MethodSignature methodSignature = getMethodSignature(jp);
-        String returnedType = methodSignature.getReturnType().getSimpleName();
-        String signature = methodSignature.toShortString();
-        String[] names = methodSignature.getParameterNames();
-        Class[] types = methodSignature.getParameterTypes();
-        if (names == null || names.length == 0) {
-            signature = signature.replace("..", "");
-        } else {
-            String params = "";
-            for (int i = 0; i < names.length; i++) {
-                params = params + types[i].getSimpleName() + " " + names[i];
-                if (isIgnored(ignoreList, names[i])) params = params + "<NOT_LOGGED>";
-                if (i < names.length - 1) params = params + ", ";
-            }
-            signature = signature.replace("..", params);
-        }
-        signature = returnedType + " " + signature;
-        if (showModifier) signature = Modifier.toString(methodSignature.getModifiers()) + " " + signature;
-        return signature;
-    }
-
-    protected boolean isVoid(ProceedingJoinPoint jp) {
-        return getMethodSignature(jp).getReturnType().getSimpleName().equals("void");
-    }
-
-    private MethodSignature getMethodSignature(ProceedingJoinPoint jp) {
-        return ((MethodSignature) jp.getSignature());
-    }
-
-    private boolean isIgnored(String[] ignoreList, String parameterName) {
-        return ignoreList.length != 0 && Arrays.asList(ignoreList).contains(parameterName);
-    }
-
     protected String objectToString(Object object, String[] maskFields) {
         if (object == null) return null;
         if (isPrimitiveOrString(object)) return object.toString();
         if (maskFields.length == 0) return objectToString(object);
-        if (Collection.class.isAssignableFrom(object.getClass())) return collectionToString(object, maskFields);
-        return gson.toJson(getMap(object, maskFields));
+        ObjectType type = getType(object);
+        switch (type) {
+            case OBJECT: return objectToString(getMap(object, maskFields));
+            case COLLECTION: return collectionToString(object, maskFields);
+            case ARRAY: return collectionToString(Arrays.asList((Object[]) object), maskFields);
+        }
+        return "!!! LOGGING: Couldn't serialize - not supported Type !!!";
     }
 
     private String collectionToString(Object object, String[] maskFields) {
@@ -107,30 +50,54 @@ public class LogSupport {
         Type itemsMapType = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> map = gson.fromJson(gson.toJson(object), itemsMapType);
         Map<String, Object> newMap = new HashMap<>();
-
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            if (entry.getValue() != null && Arrays.asList(maskFields).contains(entry.getKey())) {
-                // Replace the field that should be masked if not null
-                newMap.put(entry.getKey(), MASKED_VALUE);
-            } else {
-                if (entry.getValue() == null || isPrimitiveOrString(entry.getValue())) {
-                    // As is if null/primitive/String
-                    newMap.put(entry.getKey(), entry.getValue());
-                } else {
-                    if (Collection.class.isAssignableFrom(entry.getValue().getClass())) {
-                        // As a list of maps if collection
+
+            if (!needToMask(entry.getKey(), maskFields)) {
+                ObjectType type = getType(entry.getValue());
+                System.out.println(entry.getKey() + " TYPE: " + type + " " + entry.getValue().getClass().toString());
+                switch (type) {
+                    case STRING:
+                    case PRIMITIVE:
+                        // As is if primitive/String
+                        newMap.put(entry.getKey(), entry.getValue());
+                        break;
+                    case OBJECT:
+                        newMap.put(entry.getKey(), getMap(entry.getValue(), maskFields));
+                        break;
+                    case COLLECTION: {
                         List<Object> list = new ArrayList<>();
                         for (Object item : (Collection<Object>) entry.getValue()) {
                             list.add(getMap(item, maskFields));
                         }
                         newMap.put(entry.getKey(), list);
-                    } else {
-                        newMap.put(entry.getKey(), getMap(entry.getValue(), maskFields));
+                        break;
                     }
+                    case ARRAY: {
+                        List<Object> list = new ArrayList<>();
+                        for (Object item : (Object[]) entry.getValue()) {
+                            list.add(getMap(item, maskFields));
+                        }
+                        newMap.put(entry.getKey(), list);
+                        break;
+                    }
+                    case NULL:
+                        newMap.put(entry.getKey(), null);
+                        break;
+                    default: newMap.put(entry.getKey(), "!!! LOGGING: Couldn't serialize - not supported Type !!!");
+                }
+            } else {
+                if (entry.getValue() == null) {
+                    newMap.put(entry.getKey(), null);
+                } else {
+                    newMap.put(entry.getKey(), MASKED_VALUE);
                 }
             }
         }
         return newMap;
+    }
+
+    private boolean needToMask(String name, String[] maskFields) {
+        return Arrays.asList(maskFields).contains(name);
     }
 
     private Object cloneObject(Object object) {
@@ -149,6 +116,38 @@ public class LogSupport {
                         object.getClass() == Double.class ||
                         object.getClass() == Void.class ||
                         object.getClass() == String.class;
+    }
+
+    private ObjectType getType(Object object) {
+        if (object == null) {
+            return NULL;
+        }
+        Class clazz = object.getClass();
+        if (clazz == Boolean.class || clazz == Character.class || clazz == Byte.class || clazz == Short.class ||
+                clazz == Integer.class || clazz == Long.class || clazz == Float.class || clazz == Double.class ||
+                clazz == Void.class) {
+            return PRIMITIVE;
+        }
+        if (clazz == String.class) {
+            return STRING;
+        }
+        if (Collection.class.isAssignableFrom(clazz)) {
+            return COLLECTION;
+        }
+        if (clazz.isArray()) {
+            return ARRAY;
+        }
+        if (Map.class.isAssignableFrom(clazz)) {
+            return MAP;
+        }
+        if (object instanceof Enum) {
+            return ENUM;
+        }
+        return OBJECT;
+    }
+
+    enum ObjectType {
+        PRIMITIVE, STRING, COLLECTION, ARRAY, MAP, ENUM, NULL, OBJECT;
     }
 
 }
