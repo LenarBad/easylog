@@ -9,7 +9,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
 @Aspect
-public class EasyLogger extends LogHandler {
+public class EasyLogger extends UneasyLogger {
 
     @Pointcut("execution(* *(..))")
     public void anyMethod() {}

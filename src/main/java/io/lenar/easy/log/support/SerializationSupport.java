@@ -1,6 +1,6 @@
 package io.lenar.easy.log.support;
 
-import static io.lenar.easy.log.support.LogSupport.ObjectType.*;
+import static io.lenar.easy.log.support.SerializationSupport.ObjectType.*;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -14,18 +14,23 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-public class LogSupport {
+public class SerializationSupport {
 
-    private Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+    private static Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
 
     private static final String MASKED_VALUE = "XXXMASKEDXXX";
 
-    protected String objectToString(Object object, String[] maskFields) {
+    public static String objectToString(Object object, String[] maskFields) {
         if (object == null) return null;
-        if (isPrimitiveOrString(object)) return object.toString();
         if (maskFields.length == 0) return objectToString(object);
+        if (isPrimitiveOrString(object)) return object.toString();
         ObjectType type = getType(object);
         switch (type) {
+            case STRING:
+            case PRIMITIVE:
+            case ENUM:
+                return object.toString();
+            case MAP:
             case OBJECT: return objectToString(getMap(object, maskFields));
             case COLLECTION: return collectionToString(object, maskFields);
             case ARRAY: return collectionToString(Arrays.asList((Object[]) object), maskFields);
@@ -33,7 +38,11 @@ public class LogSupport {
         return "!!! LOGGING: Couldn't serialize - not supported Type !!!";
     }
 
-    private String collectionToString(Object object, String[] maskFields) {
+    public static String objectToString(Object object) {
+        return gson.toJson(object);
+    }
+
+    private static String collectionToString(Object object, String[] maskFields) {
         Collection collection = (Collection<Object>) object;
         List<Object> list = new ArrayList<>();
         for (Object item : collection) {
@@ -42,11 +51,7 @@ public class LogSupport {
         return gson.toJson(list);
     }
 
-    protected String objectToString(Object object) {
-        return gson.toJson(object);
-    }
-
-    private Map<String, Object> getMap(Object object, String[] maskFields) {
+    private static Map<String, Object> getMap(Object object, String[] maskFields) {
         Type itemsMapType = new TypeToken<Map<String, Object>>() {}.getType();
         Map<String, Object> map = gson.fromJson(gson.toJson(object), itemsMapType);
         Map<String, Object> newMap = new HashMap<>();
@@ -54,13 +59,15 @@ public class LogSupport {
 
             if (!needToMask(entry.getKey(), maskFields)) {
                 ObjectType type = getType(entry.getValue());
-                System.out.println(entry.getKey() + " TYPE: " + type + " " + entry.getValue().getClass().toString());
+                System.out.println(entry.getKey() + " TYPE: " + type + " " + entry.getValue());
                 switch (type) {
                     case STRING:
                     case PRIMITIVE:
                         // As is if primitive/String
                         newMap.put(entry.getKey(), entry.getValue());
                         break;
+                    case ENUM:
+                    case MAP:
                     case OBJECT:
                         newMap.put(entry.getKey(), getMap(entry.getValue(), maskFields));
                         break;
@@ -96,15 +103,15 @@ public class LogSupport {
         return newMap;
     }
 
-    private boolean needToMask(String name, String[] maskFields) {
+    private static boolean needToMask(String name, String[] maskFields) {
         return Arrays.asList(maskFields).contains(name);
     }
 
-    private Object cloneObject(Object object) {
+    private static Object cloneObject(Object object) {
         return gson.fromJson(gson.toJsonTree(object).deepCopy(), Object.class);
     }
 
-    private boolean isPrimitiveOrString(Object object) {
+    private static boolean isPrimitiveOrString(Object object) {
         return
                 object.getClass() == Boolean.class ||
                         object.getClass() == Character.class ||
@@ -118,7 +125,7 @@ public class LogSupport {
                         object.getClass() == String.class;
     }
 
-    private ObjectType getType(Object object) {
+    private static ObjectType getType(Object object) {
         if (object == null) {
             return NULL;
         }
