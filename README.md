@@ -75,9 +75,15 @@ By default there is no ignored parameter.
 
 ### 6. Mask fields in response/return
 
-```String[] maskFields() default {}``` - allows to mask in the log (```"XXXMASKEDXXX"```) actual values for field names in the list for the results returned by the method.
+```String[] maskFields() default {}``` - allows to replace actual values for field names for the results returned by the method with ```"XXXMASKEDXXX"```.
 
-By default there is no masked field
+_Note: We don't modify returned results, just customize how the results look in the logs._
+
+By default there is no masked field.
+
+Might be used for: 
+ - masking any sensitive information that shouldn't be logged
+ - decreasing the amount of logged info. For example we can replace huge lists/arrays (in returned results) that are not important in terms of logging with ```"XXXMASKEDXXX"```
 
 ## Examples
 
