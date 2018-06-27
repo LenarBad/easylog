@@ -2,7 +2,6 @@ package io.lenar.easy.log;
 
 
 import io.lenar.easy.log.annotations.LogIt;
-import io.lenar.easy.log.support.JoinPointLogger;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -10,7 +9,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
 @Aspect
-public class EasyLogger extends JoinPointLogger {
+public class EasyLogger extends UneasyLogger {
 
     @Pointcut("execution(* *(..))")
     public void anyMethod() {}
