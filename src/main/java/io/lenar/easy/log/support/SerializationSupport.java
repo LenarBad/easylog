@@ -59,7 +59,6 @@ public class SerializationSupport {
 
             if (!needToMask(entry.getKey(), maskFields)) {
                 ObjectType type = getType(entry.getValue());
-                System.out.println(entry.getKey() + " TYPE: " + type + " " + entry.getValue());
                 switch (type) {
                     case STRING:
                     case PRIMITIVE:
