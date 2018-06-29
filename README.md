@@ -8,7 +8,7 @@ EasyLog supports Java project with and without Spring.
 
 See how to setup EasyLog in example projects
 - [EasyLog for non-Spring projects - example](https://github.com/LenarBad/EasyLog-no-Spring-Example)
-- EasyLog for Spring projects - example (coming soon..)
+- [EasyLog for Spring projects - example](https://github.com/LenarBad/EasyLog-Spring-Example)
 
 ## How to use EasyLog
 
