@@ -2,9 +2,13 @@
 
 # EasyLog 
 
-EasyLog is an open source library for logging in Java projects.
+EasyLog is an open source library for logging/debugging in Java projects.
 
-Currently from the box EasyLog supports Spring projects only.
+EasyLog supports Java project with and without Spring.
+
+See how to setup EasyLog in example projects
+- [EasyLog for non-Spring projects - example](https://github.com/LenarBad/EasyLog-no-Spring-Example)
+- EasyLog for Spring projects - example (coming soon..)
 
 ## How to use EasyLog
 
