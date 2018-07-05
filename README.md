@@ -12,17 +12,7 @@ See how to setup EasyLog in example projects
 
 ## How to use EasyLog
 
-### 1. Add Maven dependency
-
-```xml
-<dependency>    
-    <groupId>io.lenar</groupId>
-    <artifactId>easy-log</artifactId>
-    <version>0.9.5</version>
-</dependency>
-```
-
-### 2. Extend EasyLogger
+### 1. Extend EasyLogger
 
 In your project create the class that extends the <code>EasyLogger</code> aspect and add the <code>@Component</code> annotation.
 
