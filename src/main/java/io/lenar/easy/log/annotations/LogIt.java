@@ -21,4 +21,8 @@ public @interface LogIt {
 
     String[] maskFields() default {};
 
+    boolean prettyPrint() default true;
+
+    boolean logNulls() default true;
+
 }
