@@ -67,7 +67,7 @@ You can skip some parameters and not log them with ```String[] ignoreParameters`
 
 By default there is no ignored parameter.
 
-### 6. Mask fields in response/return
+### 6. Mask fields in passed parameters and response/return
 
 ```String[] maskFields() default {}``` - allows to replace actual values for field names for the results returned by the method with ```"XXXMASKEDXXX"```.
 
@@ -78,6 +78,28 @@ By default there is no masked field.
 Might be used for: 
  - masking any sensitive information that shouldn't be logged
  - decreasing the amount of logged info. For example we can replace huge lists/arrays (in returned results) that are not important in terms of logging with ```"XXXMASKEDXXX"```
+ 
+### 7. Pretty print
+
+Use ```boolean prettyPrint``` to make logs more readable. By default it's true.
+
+```
+prettyPrint = false
+{"user":{"zipcode":"12345","firstName":"John","lastName":"Smith","password":"passasdfasdf","email":"XXXMASKEDXXX"}}
+```
+```
+prettyPrint = true
+{  
+   "user":{  
+      "zipcode":"12345",
+      "firstName":"John",
+      "lastName":"Smith",
+      "password":"passasdfasdf",
+      "email":"XXXMASKEDXXX"
+   }
+}
+```
+
 
 ## Examples
 
