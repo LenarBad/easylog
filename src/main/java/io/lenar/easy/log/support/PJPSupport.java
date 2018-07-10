@@ -32,40 +32,9 @@ public class PJPSupport {
      *          public BookResponse BookServiceClient.createBook(Book book)
      *
      * @param jp ProceedingJoinPoint
-     * @param ignoreList List of parameters that shouldn't be logged
      * @param showModifier true if we want to see modifiers like public, private in the method signature
-     * @return
-     */
-    public static String getMethodSignatureAsString(ProceedingJoinPoint jp, boolean showModifier, String[] ignoreList) {
-        MethodSignature methodSignature = getMethodSignature(jp);
-        String returnedType = methodSignature.getReturnType().getSimpleName();
-        String signature = methodSignature.toShortString();
-        String[] names = methodSignature.getParameterNames();
-        Class[] types = methodSignature.getParameterTypes();
-        if (names == null || names.length == 0) {
-            signature = signature.replace("..", "");
-        } else {
-            String params = "";
-            for (int i = 0; i < names.length; i++) {
-                params = params + types[i].getSimpleName() + " " + names[i];
-                if (isInArray(ignoreList, names[i])) params = params + "<NOT_LOGGED>";
-                if (i < names.length - 1) params = params + ", ";
-            }
-            signature = signature.replace("..", params);
-        }
-        signature = returnedType + " " + signature;
-        if (showModifier) signature = Modifier.toString(methodSignature.getModifiers()) + " " + signature;
-        return signature;
-    }
-
-    /**
-     * Retutns method signature as a String
-     * Example:
-     *          public BookResponse BookServiceClient.createBook(Book book)
-     *
-     * @param jp ProceedingJoinPoint
      * @param ignoreList List of parameters that shouldn't be logged
-     * @param showModifier true if we want to see modifiers like public, private in the method signature
+     * @param maskFields List of parameters that should be masked
      * @return
      */
     public static String getMethodSignatureAsString(
