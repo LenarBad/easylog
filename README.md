@@ -1,5 +1,7 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.lenar/easy-log.svg)](https://maven-badges.herokuapp.com/maven-central/io.lenar/easy-log)
 
+https://lenarbad.github.io/EasyLog/
+
 # EasyLog 
 
 EasyLog is an open source library for logging/debugging in Java projects.
