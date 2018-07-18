@@ -6,6 +6,25 @@ https://lenarbad.github.io/EasyLog/
 
 EasyLog is an open source library for logging/debugging in Java projects.
 
+* [EasyLog](#easylog)
+  * [How to setup EasyLog](#how-to-setup-easylog)
+  * [How to use EasyLog](#how-to-use-easylog)
+      * [Extend EasyLogger for Spring Project](#extend-easylogger-for-spring-project)
+      * [Extend EasyLoggerNoSpring for Non Spring Project](#extend-easyloggernospring-for-non-spring-project)
+      * [@LogIt annotation](#logit-annotation)
+      * [Logging Level](#logging-level)
+      * [Labels](#labels)
+      * [Exclude parameters from logging](#exclude-parameters-from-logging)
+      * [Mask fields](#mask-fields)
+      * [Pretty print](#pretty-print)
+  * [Examples](#examples)
+  * [Warning](#warning)
+  * [Issues and suggestions](#issues-and-suggestions)
+  * [Contributions](#contributions)
+
+
+## How to setup EasyLog
+
 EasyLog supports Java project with and without Spring.
 
 See how to setup EasyLog in example projects
@@ -14,7 +33,7 @@ See how to setup EasyLog in example projects
 
 ## How to use EasyLog
 
-### 1. Extend EasyLogger
+### Extend EasyLogger for Spring Project
 
 In your project create the class that extends the <code>EasyLogger</code> aspect and add the <code>@Component</code> annotation.
 
@@ -27,7 +46,27 @@ public class MyLogger extends EasyLogger {
 }
 ```
 
-### 2. @LogIt annotation 
+### Extend EasyLoggerNoSpring for Non Spring Project
+
+```java
+@Aspect
+public class MyLogger extends EasyLoggerNoSpring {
+
+    @Around(CLASS_LEVEL_LOGIT_POINTCUT)
+    public Object classLog(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
+        return logIt(jp, annotation);
+    }
+
+    @Around(METHOD_LEVEL_LOGIT_POINTCUT)
+    public Object methodLog(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
+        return logIt(jp, annotation);
+    }
+}
+```
+
+Note: In IntelliJ make sure that you use AJC compiler if this wasn't set automatically.
+
+### @LogIt annotation 
 
 #### Method level
 
@@ -50,7 +89,7 @@ public class ClassWithMethods {
 }
 ```
 
-### 3. Logging Level
+### Logging Level
 
 You can set the logging level by passing the parameter <code>level</code> with ```@LogIt``` annotation.
 
@@ -58,18 +97,18 @@ Available options:  ```DEBUG```, ```INFO```, ```WARN```, ```ERROR```
 
 By default ```level=Level.INFO```
 
-### 4. Labels
+### Labels
 
 Labels help you to simplify a search for specific entries in the logs.
 Just pass another annotation parameter ```String label```. 
 
-### 5. Exclude parameters from logging
+### Exclude parameters from logging
 
 You can skip some parameters and not log them with ```String[] ignoreParameters```. 
 
 By default there is no ignored parameter.
 
-### 6. Mask fields in passed parameters and response/return
+### Mask fields
 
 ```String[] maskFields() default {}``` - allows to replace actual values for field names for the results returned by the method with ```"XXXMASKEDXXX"```.
 
@@ -81,7 +120,7 @@ Might be used for:
  - masking any sensitive information that shouldn't be logged
  - decreasing the amount of logged info. For example we can replace huge lists/arrays (in returned results) that are not important in terms of logging with ```"XXXMASKEDXXX"```
  
-### 7. Pretty print
+### Pretty print
 
 Use ```boolean prettyPrint``` to make logs more readable. By default it's true.
 
@@ -133,6 +172,10 @@ public User login(String userName, String password) {
 }
 ```
 
+Working example projects
+- [EasyLog for non-Spring projects - example](https://github.com/LenarBad/EasyLog-no-Spring-Example)
+- [EasyLog for Spring projects - example](https://github.com/LenarBad/EasyLog-Spring-Example)
+
 ## Warning
 
 Don't use the ```maskFields``` parameter for complex objects in highly loaded applications where the performance is the most importance thing.
@@ -143,7 +186,7 @@ It walks through all object's fields recursively to find all the fields that sho
 
 Report your issues or suggestions [here](https://github.com/LenarBad/EasyLog/issues)
 
-## Contrubutions
+## Contributions
 
 This is an opensource project - feel free to send your pull requests
 
