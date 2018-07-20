@@ -3,6 +3,7 @@ package io.lenar.easy.log.support;
 import static io.lenar.easy.log.support.Processor.ObjectType.*;
 
 import java.lang.reflect.Field;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -114,7 +115,7 @@ public class Processor {
         if (object instanceof Enum) {
             return ENUM;
         }
-        if (object instanceof Date) {
+        if (object instanceof Date || object instanceof LocalDate) {
             return DATE;
         }
         return OBJECT;
