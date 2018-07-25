@@ -14,7 +14,7 @@ import java.util.Map;
 
 public class Processor {
 
-    private static final String MASKED_VALUE = "XXXMASKEDXXX";
+    public static final String MASKED_VALUE = "XXXMASKEDXXX";
     private static final boolean DEBUG = false;
 
     public static Object process(Object object, String[] maskFields) {
@@ -85,7 +85,7 @@ public class Processor {
         return newMap;
     }
 
-    private static boolean needToMask(String name, String[] maskFields) {
+    public static boolean needToMask(String name, String[] maskFields) {
         return Arrays.asList(maskFields).contains(name);
     }
 
