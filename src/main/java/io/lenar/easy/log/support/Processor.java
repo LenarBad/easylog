@@ -17,11 +17,11 @@ public class Processor {
     private static final String MASKED_VALUE = "XXXMASKEDXXX";
     private static final boolean DEBUG = false;
 
-    public static Object process(Object object, String[] maskFields, boolean nulls) {
-        return processObject(object, maskFields, nulls);
+    public static Object process(Object object, String[] maskFields) {
+        return processObject(object, maskFields);
     }
 
-    private static Object processObject(Object object, String[] maskFields, boolean nulls) {
+    private static Object processObject(Object object, String[] maskFields) {
         if (object == null) return null;
         ObjectType type = getType(object);
         debug("  TYPE: " + type.name() + " " + object.toString());
@@ -30,20 +30,20 @@ public class Processor {
             case PRIMITIVE:
             case DATE:
             case ENUM: return object;
-            case MAP: return processMap((Map<String, Object>) object, maskFields, nulls);
-            case OBJECT: return processMap(objectAsMap(object), maskFields, nulls);
-            case COLLECTION: return processCollection(object, maskFields, nulls);
-            case ARRAY: return processCollection(Arrays.asList((Object[]) object), maskFields, nulls);
+            case MAP: return processMap((Map<String, Object>) object, maskFields);
+            case OBJECT: return processMap(objectAsMap(object), maskFields);
+            case COLLECTION: return processCollection(object, maskFields);
+            case ARRAY: return processCollection(Arrays.asList((Object[]) object), maskFields);
         }
         debug("!!! LOGGING: Couldn't serialize - not supported Type !!!");
         return object;
     }
 
-    private static List<Object> processCollection(Object object, String[] maskFields, boolean nulls) {
+    private static List<Object> processCollection(Object object, String[] maskFields) {
         Collection collection = (Collection<Object>) object;
         List<Object> list = new ArrayList<>();
         for (Object item : collection) {
-            list.add(processObject(item, maskFields, nulls));
+            list.add(processObject(item, maskFields));
         }
         return list;
     }
@@ -67,13 +67,13 @@ public class Processor {
         return map;
     }
 
-    private static Object processMap(Map<String, Object> map, String[] maskFields, boolean nulls) {
+    private static Object processMap(Map<String, Object> map, String[] maskFields) {
         Map<String, Object> newMap = new HashMap<>();
         debug("\nPROCESSING MAP: " + map.toString());
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             debug("  key:" + entry.getKey() + " value: " + entry.getValue());
             if (!needToMask(entry.getKey(), maskFields)) {
-                newMap.put(entry.getKey(), processObject(entry.getValue(), maskFields, nulls));
+                newMap.put(entry.getKey(), processObject(entry.getValue(), maskFields));
             } else {
                 if (entry.getValue() == null) {
                     newMap.put(entry.getKey(), null);
