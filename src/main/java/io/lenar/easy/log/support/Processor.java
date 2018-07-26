@@ -50,21 +50,32 @@ public class Processor {
 
     private static Map<String, Object> objectAsMap(Object obj)
     {
-        Class<? extends Object> c1 = obj.getClass();
+        Class<? extends Object> clazz = obj.getClass();
         Map<String, Object> map = new HashMap<>();
+        map = objectAsMapWithParents(clazz, obj, map);
+        return map;
+    }
+
+    private static Map<String, Object> objectAsMapWithParents(Class clazz, Object obj, Map<String, Object> subMap) {
         try {
-            Field[] fields = c1.getDeclaredFields();
+            Field[] fields = clazz.getDeclaredFields();
             debug("OBJECT TO MAP: " + obj.toString());
             for (int i = 0; i < fields.length; i++) {
                 String name = fields[i].getName();
-                fields[i].setAccessible(true);
-                Object value = fields[i].get(obj);
-                map.put(name, value);
+                if (!subMap.containsKey(name)){
+                    fields[i].setAccessible(true);
+                    Object value = fields[i].get(obj);
+                    subMap.put(name, value);
+                }
+            }
+            Class superClazz = clazz.getSuperclass();
+            if (superClazz != null) {
+                subMap = objectAsMapWithParents(superClazz, obj, subMap);
             }
         } catch (Exception ex) {
-            map.put("LOGGING_ERROR", "Failed to log object");
+            subMap.put("LOGGING_ERROR", "Failed to log object");
         }
-        return map;
+        return subMap;
     }
 
     private static Object processMap(Map<String, Object> map, String[] maskFields) {
