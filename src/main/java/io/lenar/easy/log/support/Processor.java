@@ -3,6 +3,7 @@ package io.lenar.easy.log.support;
 import static io.lenar.easy.log.support.Processor.ObjectType.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,8 +49,7 @@ public class Processor {
         return list;
     }
 
-    private static Map<String, Object> objectAsMap(Object obj)
-    {
+    private static Map<String, Object> objectAsMap(Object obj) {
         Class<? extends Object> clazz = obj.getClass();
         Map<String, Object> map = new HashMap<>();
         map = objectAsMapWithParents(clazz, obj, map);
@@ -59,13 +59,15 @@ public class Processor {
     private static Map<String, Object> objectAsMapWithParents(Class clazz, Object obj, Map<String, Object> subMap) {
         try {
             Field[] fields = clazz.getDeclaredFields();
-            debug("OBJECT TO MAP: " + obj.toString());
+            debug("Class: " + clazz.getSimpleName());
             for (int i = 0; i < fields.length; i++) {
-                String name = fields[i].getName();
-                if (!subMap.containsKey(name)){
-                    fields[i].setAccessible(true);
-                    Object value = fields[i].get(obj);
-                    subMap.put(name, value);
+                if (!Modifier.isProtected(fields[i].getModifiers())) {
+                    String name = fields[i].getName();
+                    if (!subMap.containsKey(name)) {
+                        fields[i].setAccessible(true);
+                        Object value = fields[i].get(obj);
+                        subMap.put(name, value);
+                    }
                 }
             }
             Class superClazz = clazz.getSuperclass();
