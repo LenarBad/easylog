@@ -3,6 +3,7 @@ package io.lenar.easy.log.support;
 import static io.lenar.easy.log.support.Processor.ObjectType.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,18 +49,30 @@ public class Processor {
         return list;
     }
 
-    private static Map<String, Object> objectAsMap(Object obj)
-    {
-        Class<? extends Object> c1 = obj.getClass();
+    private static Map<String, Object> objectAsMap(Object obj) {
+        Class<? extends Object> clazz = obj.getClass();
         Map<String, Object> map = new HashMap<>();
+        map = objectAsMapWithParents(clazz, obj, map);
+        return map;
+    }
+
+    private static Map<String, Object> objectAsMapWithParents(Class clazz, Object obj, Map<String, Object> map) {
         try {
-            Field[] fields = c1.getDeclaredFields();
-            debug("OBJECT TO MAP: " + obj.toString());
+            Field[] fields = clazz.getDeclaredFields();
+            debug("Class: " + clazz.getSimpleName());
             for (int i = 0; i < fields.length; i++) {
-                String name = fields[i].getName();
-                fields[i].setAccessible(true);
-                Object value = fields[i].get(obj);
-                map.put(name, value);
+                if (!Modifier.isProtected(fields[i].getModifiers())) {
+                    String name = fields[i].getName();
+                    if (!map.containsKey(name)) {
+                        fields[i].setAccessible(true);
+                        Object value = fields[i].get(obj);
+                        map.put(name, value);
+                    }
+                }
+            }
+            Class superClazz = clazz.getSuperclass();
+            if (superClazz != null) {
+                map = objectAsMapWithParents(superClazz, obj, map);
             }
         } catch (Exception ex) {
             map.put("LOGGING_ERROR", "Failed to log object");
