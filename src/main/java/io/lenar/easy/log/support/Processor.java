@@ -4,6 +4,8 @@ import static io.lenar.easy.log.support.Processor.ObjectType.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -110,6 +112,7 @@ public class Processor {
 
         if (clazz == Boolean.class || clazz == Character.class || clazz == Byte.class || clazz == Short.class ||
                 clazz == Integer.class || clazz == Long.class || clazz == Float.class || clazz == Double.class ||
+                clazz == BigInteger.class || clazz == BigDecimal.class ||
                 clazz == Void.class) {
             return PRIMITIVE;
         }
