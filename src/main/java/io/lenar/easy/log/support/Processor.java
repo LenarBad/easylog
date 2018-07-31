@@ -33,7 +33,7 @@ public class Processor {
             case PRIMITIVE:
             case DATE:
             case ENUM: return object;
-            case MAP: return processMap((Map<String, Object>) object, maskFields);
+            case MAP: return processMap(object, maskFields);
             case OBJECT: return processMap(objectAsMap(object), maskFields);
             case COLLECTION: return processCollection(object, maskFields);
             case ARRAY: return processCollection(Arrays.asList((Object[]) object), maskFields);
@@ -82,18 +82,19 @@ public class Processor {
         return map;
     }
 
-    private static Object processMap(Map<String, Object> map, String[] maskFields) {
+    private static Object processMap(Object object, String[] maskFields) {
+        Map<Object, Object> oldMap = (Map<Object, Object>) object;
         Map<String, Object> newMap = new HashMap<>();
-        debug("\nPROCESSING MAP: " + map.toString());
-        for (Map.Entry<String, Object> entry : map.entrySet()) {
+        debug("\nPROCESSING MAP: " + oldMap.toString());
+        for (Map.Entry<Object, Object> entry : oldMap.entrySet()) {
             debug("  key:" + entry.getKey() + " value: " + entry.getValue());
-            if (!needToMask(entry.getKey(), maskFields)) {
-                newMap.put(entry.getKey(), processObject(entry.getValue(), maskFields));
+            if (!needToMask(entry.getKey().toString(), maskFields)) {
+                newMap.put(entry.getKey().toString(), processObject(entry.getValue(), maskFields));
             } else {
                 if (entry.getValue() == null) {
-                    newMap.put(entry.getKey(), null);
+                    newMap.put(entry.getKey().toString(), null);
                 } else {
-                    newMap.put(entry.getKey(), MASKED_VALUE);
+                    newMap.put(entry.getKey().toString(), MASKED_VALUE);
                 }
             }
         }
