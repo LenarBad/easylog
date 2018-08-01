@@ -18,21 +18,33 @@ public class UneasyLogger {
     private static org.slf4j.Logger logger = LoggerFactory.getLogger("UneasyLogger");
 
     protected Object logMethod(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
-        logMethodInvocation(
-                getMethodSignatureAsString(jp, true, annotation.ignoreParameters(), annotation.maskFields()),
-                getMethodParameters(jp, annotation.ignoreParameters()),
-                annotation);
+        try {
+            logMethodInvocation(
+                    getMethodSignatureAsString(jp, true, annotation.ignoreParameters(), annotation.maskFields()),
+                    getMethodParameters(jp, annotation.ignoreParameters()),
+                    annotation);
+        } catch (Exception ex) {
+            log("Failed to process and log method's parameters \n" +
+                    getMethodSignatureAsString(jp, true, annotation.ignoreParameters(), annotation.maskFields()),
+                    annotation.level());
+        }
 
         long startTime = System.currentTimeMillis();
         Object result = jp.proceed(jp.getArgs());
         long endTime = System.currentTimeMillis();
 
-        logMethodReturn(
-                endTime - startTime,
-                getMethodSignatureAsString(jp, false, annotation.ignoreParameters(), annotation.maskFields()),
-                isVoid(jp),
-                result,
-                annotation);
+        try {
+            logMethodReturn(
+                    endTime - startTime,
+                    getMethodSignatureAsString(jp, false, annotation.ignoreParameters(), annotation.maskFields()),
+                    isVoid(jp),
+                    result,
+                    annotation);
+        } catch (Exception ex) {
+            log("Failed to process log method's return \n" +
+                            getMethodSignatureAsString(jp, false, annotation.ignoreParameters(), annotation.maskFields()),
+                    annotation.level());
+        }
 
         return result;
     }
