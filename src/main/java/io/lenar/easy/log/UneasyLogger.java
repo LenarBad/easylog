@@ -41,7 +41,7 @@ public class UneasyLogger {
                     result,
                     annotation);
         } catch (Exception ex) {
-            log("Failed to process log method's return \n" +
+            log("Failed to process and log method's return \n" +
                             getMethodSignatureAsString(jp, false, annotation.ignoreParameters(), annotation.maskFields()),
                     annotation.level());
         }
