@@ -63,7 +63,7 @@ public class Processor {
             Field[] fields = clazz.getDeclaredFields();
             debug("Class: " + clazz.getSimpleName());
             for (int i = 0; i < fields.length; i++) {
-                if (!Modifier.isProtected(fields[i].getModifiers())) {
+                if (!Modifier.isProtected(fields[i].getModifiers()) && !Modifier.isStatic(fields[i].getModifiers())) {
                     String name = fields[i].getName();
                     if (!map.containsKey(name)) {
                         fields[i].setAccessible(true);
