@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import io.lenar.easy.log.annotations.LogIt;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 
@@ -73,6 +74,13 @@ public class PJPSupport {
         return getMethodSignature(jp).getReturnType().getSimpleName().equals("void");
     }
 
+    public static boolean hasMethodLevelLogItAnnotation(ProceedingJoinPoint jp) {
+        if (((MethodSignature) jp.getSignature()).getMethod().getAnnotationsByType(LogIt.class).length != 0) {
+            return true;
+        }
+        return false;
+    }
+
     private static boolean isInArray(String[] array, String parameterName) {
         return array.length != 0 && Arrays.asList(array).contains(parameterName);
     }
@@ -80,6 +88,5 @@ public class PJPSupport {
     private static MethodSignature getMethodSignature(ProceedingJoinPoint jp) {
         return ((MethodSignature) jp.getSignature());
     }
-
 
 }
