@@ -9,7 +9,7 @@
 
     <name>Easy Log</name>
     <description>Simplifies logging</description>
-    <url>https://github.com/LenarBad/EasyLog</url>
+    <url>https://github.com/LenarBad/easylog</url>
 
     <parent>
         <groupId>org.sonatype.oss</groupId>
