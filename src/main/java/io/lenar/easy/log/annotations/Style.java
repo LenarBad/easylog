@@ -8,20 +8,20 @@ public enum  Style {
     /**
      * As pretty printed JSON, null fields are not serialized
      */
-    PRETTY_PRINT_NO_NULLS(true, true),
+    PRETTY_PRINT_NO_NULLS(true, false),
 
     /**
      * As pretty printed JSON, null fields are serialized
      */
-    PRETTY_PRINT_WITH_NULLS(true, false),
+    PRETTY_PRINT_WITH_NULLS(true, true),
 
     /**
-     * As JSON, null fields are  serialized
+     * As JSON, null fields are serialized
      */
     COMPACT_WITH_NULLS(false, true),
 
     /**
-     * As JSON, null fields are serialized
+     * As JSON, null fields are not serialized
      */
     MINIMAL(false, false),
 
