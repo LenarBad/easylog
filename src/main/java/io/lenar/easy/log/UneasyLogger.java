@@ -1,5 +1,6 @@
 package io.lenar.easy.log;
 
+import static io.lenar.easy.log.annotations.Style.AS_IS;
 import static io.lenar.easy.log.support.PJPSupport.getMethodParameters;
 import static io.lenar.easy.log.support.PJPSupport.getMethodSignatureAsString;
 import static io.lenar.easy.log.support.PJPSupport.isVoid;
@@ -7,9 +8,10 @@ import static io.lenar.easy.log.support.SerializationSupport.objectToString;
 import static io.lenar.easy.log.support.SerializationSupport.paramsToString;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import io.lenar.easy.log.annotations.Level;
 import io.lenar.easy.log.annotations.LogIt;
-
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.slf4j.LoggerFactory;
 
@@ -49,21 +51,35 @@ public class UneasyLogger {
         return result;
     }
 
-    private void logMethodInvocation(String methodName, Map<String, Object> params, LogIt annotation) {
+    private void logMethodInvocation(String methodName, Map<String, Object> params, LogIt logIt) {
         String message = "\n-> " + methodName + "\n";
-        if (!annotation.label().isEmpty()) message = "\n" + annotation.label() + message;
-        if (!params.isEmpty()) message =
-                message + paramsToString(params, annotation.maskFields(), annotation.prettyPrint(), annotation.logNulls()) + "\n";
-        log(message, annotation.level());
+        if (!logIt.label().isEmpty()) message = "\n" + logIt.label() + message;
+        if (!params.isEmpty()) {
+            if (logIt.style() != AS_IS) {
+                message = message + paramsToString(params, logIt.maskFields(), logIt.style().prettyPrint, logIt.style().logNulls) + "\n";
+            } else {
+                String paramsString = params.entrySet().stream()
+                        .map(entry -> entry.getKey() + ": "
+                                + ( (entry.getValue() == null) ? "null" : entry.getValue().toString()))
+                        .collect(Collectors.joining("\n"));
+                message = message + paramsString + "\n";
+            }
+        }
+        log(message, logIt.level());
     }
 
-    private void logMethodReturn(long executionTime, String methodName, boolean isVoid, Object result, LogIt annotation) {
+    private void logMethodReturn(long executionTime, String methodName, boolean isVoid, Object result, LogIt logIt) {
         String message = "\nExecution/Response time:  " + executionTime + "ms\n";
-        if (!annotation.label().isEmpty()) message = message + annotation.label() + "\n";
+        if (!logIt.label().isEmpty()) message = message + logIt.label() + "\n";
         message = message + "<- " + methodName + "\n";
-        if (!isVoid) message =
-                message + objectToString(result, annotation.maskFields(), annotation.prettyPrint(), annotation.logNulls()) + "\n";
-        log(message, annotation.level());
+        if (!isVoid) {
+            if (logIt.style() != AS_IS) {
+                message = message + objectToString(result, logIt.maskFields(), logIt.style().prettyPrint, logIt.style().logNulls) + "\n";
+            } else {
+                message = message + result.toString() + "\n";
+            }
+        }
+        log(message, logIt.level());
     }
 
     private void log(String message, Level level) {
