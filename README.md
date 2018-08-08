@@ -16,7 +16,7 @@ EasyLog is an open source library for logging/debugging in Java projects.
       * [Labels](#labels)
       * [Exclude parameters from logging](#exclude-parameters-from-logging)
       * [Mask fields](#mask-fields)
-      * [Pretty print](#pretty-print)
+      * [Logging Styles](#logging-styles)
   * [Examples](#examples)
   * [Warning](#warning)
   * [Issues and suggestions](#issues-and-suggestions)
@@ -120,16 +120,25 @@ Might be used for:
  - masking any sensitive information that shouldn't be logged
  - decreasing the amount of logged info. For example we can replace huge lists/arrays (in returned results) that are not important in terms of logging with ```"XXXMASKEDXXX"```
  
-### Pretty print
+### Logging Styles
 
-Use ```boolean prettyPrint``` to make logs more readable. By default it's true.
+Available values: ```PRETTY_PRINT_WITH_NULLS```, ```PRETTY_PRINT_NO_NULLS```, ```COMPACT_WITH_NULLS```, ```MINIMAL```, ```AS_IS```.
 
+By default it's ```PRETTY_PRINT_WITH_NULLS```
+
+Here PRETTY_PRINT means _"pretty printed JSON"_.
+
+```COMPACT_WITH_NULLS``` and ```MINIMAL``` also mean _JSON_ but not _"pretty printed"_
+
+See the difference
+
+```COMPACT_WITH_NULLS``` and ```MINIMAL```
 ```
-prettyPrint = false
 {"user":{"zipcode":"12345","firstName":"John","lastName":"Smith","password":"passasdfasdf","email":"XXXMASKEDXXX"}}
 ```
+
+ ```PRETTY_PRINT_WITH_NULLS``` and ```PRETTY_PRINT_NO_NULLS```
 ```
-prettyPrint = true
 {  
    "user":{  
       "zipcode":"12345",
@@ -141,6 +150,11 @@ prettyPrint = true
 }
 ```
 
+Use ```PRETTY_PRINT_WITH_NULLS``` and ```COMPACT_WITH_NULLS``` if you want to log (serialize ```null```s)
+
+Use ```PRETTY_PRINT_NO_NULLS``` and ```MINIMAL``` if you want to exclude nulls from logging.
+
+```AS_IS``` is used if you want to serialize the parameters and returned result with the ```toString``` method. In this case ```maskFields``` will be ignored
 
 ## Examples
 
