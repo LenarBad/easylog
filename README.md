@@ -75,7 +75,7 @@ Annotate the methods that you want to log with <code>@LogIt</code> annotation
 ```java
 @LogIt
 public User createUser(CreateUserForm form) {
-...
+    ...
 }
 ```
 #### Class level
@@ -85,7 +85,7 @@ If you need to log all methods of a class you can annotate the class with <code>
  ```java
 @LogIt
 public class ClassWithMethods {
-...
+    ...
 }
 ```
 
@@ -161,28 +161,28 @@ Use ```PRETTY_PRINT_NO_NULLS``` and ```MINIMAL``` if you want to exclude nulls f
  ```java
 @LogIt(label="DEBUGGING ISSUE 1234", level=DEBUG)
 public class ClassWithMethods {
-...
+    ...
 }
 ```
 
  ```java
 @LogIt(label="USER SERVICE CALL")
 public class ClassWithMethods {
-...
+    ...
 }
 ```
 
  ```java
 @LogIt(label="USER CARDS", maskFields={"cardNumber", "pin"})
 public UserCardsInfo getUserCards(..) {
-...
+    ...
 }
 ```
 
  ```java
 @LogIt(label="USER SERVICE CALL", maskFields={"password"})
 public User login(String userName, String password) {
-...
+    ...
 }
 ```
 
@@ -192,9 +192,25 @@ Working example projects
 
 ## Warning
 
-Don't use the ```maskFields``` parameter for complex objects in highly loaded applications where the performance is the most importance thing.
+EasyLog walks through all passed and returned objects fields but It should not noticeably affect the performance
 
-It walks through all object's fields recursively to find all the fields that should be masked.
+If you’re passing/returning very big objects or lists/arrays in highly loaded applications and concerned about performance I’d recommend to use AS_IS style and use your own toString() methods for serialization. Another option is to exclude those fields from logging with ```maskFields```
+
+Examples
+
+```java
+    @LogIt(style=AS_IS)
+    public Universe bigBang(int numberOfStars) {
+        ...
+    }
+```
+
+ ```java
+    @LogIt(maskFields={"reallyHugeList"})
+    public User login(String userName, String password) {
+        ...
+    }
+```
 
 ## Issues and suggestions
 
