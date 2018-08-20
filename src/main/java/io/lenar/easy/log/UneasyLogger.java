@@ -33,7 +33,7 @@ public class UneasyLogger {
         }
 
         long startTime = System.currentTimeMillis();
-        Object result = proceedExceptionSafe(jp);
+        Object result = proceedExceptionSafe(jp, annotation.label());
         long endTime = System.currentTimeMillis();
 
         try {
