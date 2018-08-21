@@ -52,19 +52,35 @@ public class MyLogger extends EasyLogger {
 @Aspect
 public class MyLogger extends EasyLoggerNoSpring {
 
-    @Around(CLASS_LEVEL_LOGIT_POINTCUT)
+    @Around("execution(* *(..)) && @within(annotation)")
     public Object classLog(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
         return logItClassLevel(jp, annotation);
     }
 
-    @Around(METHOD_LEVEL_LOGIT_POINTCUT)
+    @Around("execution(* *(..)) && @annotation(annotation)")
     public Object methodLog(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
         return logItMethodLevel(jp, annotation);
     }
+
+    @AfterThrowing(pointcut = "execution(* *(..)) && @within(annotation)", throwing = "e")
+    public void classExceptionLog(JoinPoint jp, LogIt annotation, Throwable e) {
+        logExceptionClassLevel(jp, annotation, e);
+    }
+
+    @AfterThrowing(pointcut = "execution(* *(..)) && @annotation(annotation)", throwing = "e")
+    public void methodExceptionLog(JoinPoint jp, LogIt annotation, Throwable e) {
+        logExceptionMethodLevel(jp, annotation, e);
+    }
+
 }
 ```
 
-Note: In IntelliJ make sure that you use AJC compiler if this wasn't set automatically.
+Just copy and past.
+
+If you use IntelliJ make sure that you use AJC compiler if this wasn't set automatically.
+Also you may need to clear ```target``` folder (```mvn clean``` or just right click and delete on it).
+
+Maven commands work as expected.
 
 ### @LogIt annotation 
 
