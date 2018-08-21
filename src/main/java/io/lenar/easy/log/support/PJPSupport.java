@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.stream.IntStream;
 
 import io.lenar.easy.log.annotations.LogIt;
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.MethodSignature;
 
@@ -74,7 +75,7 @@ public class PJPSupport {
         return getMethodSignature(jp).getReturnType().getSimpleName().equals("void");
     }
 
-    public static boolean hasMethodLevelLogItAnnotation(ProceedingJoinPoint jp) {
+    public static boolean hasMethodLevelLogItAnnotation(JoinPoint jp) {
         if (((MethodSignature) jp.getSignature()).getMethod().getAnnotationsByType(LogIt.class).length != 0) {
             return true;
         }
