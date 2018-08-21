@@ -1,6 +1,7 @@
 package io.lenar.easy.log;
 
 import static io.lenar.easy.log.annotations.Style.AS_IS;
+import static io.lenar.easy.log.support.ExceptionHandler.proceedExceptionSafe;
 import static io.lenar.easy.log.support.PJPSupport.getMethodParameters;
 import static io.lenar.easy.log.support.PJPSupport.getMethodSignatureAsString;
 import static io.lenar.easy.log.support.PJPSupport.isVoid;
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class UneasyLogger {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger("UneasyLogger");
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(UneasyLogger.class);
 
     protected Object logMethod(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
         try {
@@ -32,7 +33,7 @@ public class UneasyLogger {
         }
 
         long startTime = System.currentTimeMillis();
-        Object result = jp.proceed(jp.getArgs());
+        Object result = proceedExceptionSafe(jp, annotation.label());
         long endTime = System.currentTimeMillis();
 
         try {
