@@ -9,6 +9,7 @@ import static io.lenar.easy.log.support.SerializationSupport.paramsToString;
 
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import io.lenar.easy.log.annotations.Level;
 import io.lenar.easy.log.annotations.LogIt;
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public class UneasyLogger {
 
-    private static org.slf4j.Logger logger = LoggerFactory.getLogger("UneasyLogger");
+    private static org.slf4j.Logger logger = LoggerFactory.getLogger(UneasyLogger.class);
 
     protected Object logMethod(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
         try {
@@ -32,7 +33,7 @@ public class UneasyLogger {
         }
 
         long startTime = System.currentTimeMillis();
-        Object result = jp.proceed(jp.getArgs());
+        Object result = proceedWithRetry(jp, annotation);
         long endTime = System.currentTimeMillis();
 
         try {
@@ -80,6 +81,44 @@ public class UneasyLogger {
             }
         }
         log(message, logIt.level());
+    }
+
+    private Object proceedWithRetry(ProceedingJoinPoint jp, LogIt logIt) throws Throwable {
+        int attempts = logIt.retryAttempts() < 0 ? 0 : logIt.retryAttempts();
+        long delay = logIt.retryDelay() < 0 ? 0 : logIt.retryDelay();
+        try {
+            return jp.proceed(jp.getArgs());
+        } catch (Throwable ex) {
+            if (attempts >= 1 && isRetryException(ex, logIt)) {
+                for (int attempt = 1; attempt <= attempts; attempt++) {
+                    try {
+                        logRetry(jp, attempt, delay, attempts, logIt.label(), ex);
+                        Thread.sleep(delay);
+                        return jp.proceed(jp.getArgs());
+                    } catch (Throwable retryException) {
+                        if (!isRetryException(retryException, logIt)) {
+                            throw  retryException;
+                        }
+                    }
+                }
+            }
+
+            throw ex;
+        }
+    }
+
+    private void logRetry(ProceedingJoinPoint jp, int attempt, long delay, int attempts, String label, Throwable ex) {
+        logger.error("{} \r\n{} <- {}\r\nRetry {}/{} in {} ms",
+                ex.toString(),
+                label,
+                jp.getSignature().toShortString(),
+                attempt,
+                attempts,
+                delay);
+    }
+
+    private boolean isRetryException(Throwable exception, LogIt logIt) {
+        return Stream.of(logIt.retryExceptions()).anyMatch(item -> item == exception.getClass());
     }
 
     private void log(String message, Level level) {
