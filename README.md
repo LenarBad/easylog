@@ -17,6 +17,7 @@ EasyLog is an open source library for logging/debugging in Java projects.
       * [Exclude parameters from logging](#exclude-parameters-from-logging)
       * [Mask fields](#mask-fields)
       * [Logging Styles](#logging-styles)
+  * [Exceptions](#exceptions)
   * [Examples](#examples)
   * [Warning](#warning)
   * [Issues and suggestions](#issues-and-suggestions)
@@ -171,6 +172,52 @@ Use ```PRETTY_PRINT_WITH_NULLS``` and ```COMPACT_WITH_NULLS``` if you want to lo
 Use ```PRETTY_PRINT_NO_NULLS``` and ```MINIMAL``` if you want to exclude nulls from logging.
 
 ```AS_IS``` is used if you want to serialize the parameters and returned result with the ```toString``` method. In this case ```maskFields``` will be ignored
+
+## Exceptions
+
+If the method annotated with ```@LogIt``` (or belongs to the class annotated with ```LogIt```) throws an exception, it will be logged like this
+
+```
+14:17:54.359 [main] ERROR  io.lenar.easy.log.ExceptionLogger - java.lang.ArithmeticException: / by zero 
+ <- Universe.getStarsBeforeBigBang(): 
+java.lang.ArithmeticException: / by zero
+	at io.lenar.examples.model.Universe.getStarsBeforeBigBang_aroundBody4(Universe.java:50) [classes/:na]
+	at io.lenar.examples.model.Universe$AjcClosure5.run(Universe.java:1) ~[classes/:na]
+	at org.aspectj.runtime.reflect.JoinPointImpl.proceed(JoinPointImpl.java:221) ~[aspectjrt-1.8.7.jar:na]
+	at io.lenar.easy.log.UneasyLogger.logMethod(UneasyLogger.java:35) ~[easy-log-1.1.5-SNAPSHOT.jar:na]
+	at io.lenar.easy.log.EasyLoggerNoSpring.logItMethodLevel(EasyLoggerNoSpring.java:22) ~[easy-log-1.1.5-SNAPSHOT.jar:na]
+	at io.lenar.examples.log.MyLogger.methodLog(MyLogger.java:22) ~[classes/:na]
+	at io.lenar.examples.model.Universe.getStarsBeforeBigBang(Universe.java:49) [classes/:na]
+	at io.lenar.examples.LoggerTest.exceptionTest(LoggerTest.java:32) [test-classes/:na]
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:1.8.0_152]
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62) ~[na:1.8.0_152]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_152]
+	at java.lang.reflect.Method.invoke(Method.java:498) ~[na:1.8.0_152]
+...
+```
+
+### WebApplicationException
+
+EasyLog logs ```WebApplicationException```s different way.
+
+So if a service call throws the ```WebApplicationException``` exception then we will be also able to log error messages.
+
+For example
+
+```text
+08:34:40.439 [main] INFO  UneasyLogger - 
+AUTH SERVICE CLIENT
+-> public LoginResponse AuthServiceClient.login(LoginRequest request)
+request: {
+  "password": "passasdfasdf",
+  "loginID": "bademail@webmail.rei.com"
+}
+
+
+08:34:40.682 [main] ERROR io.lenar.easy.log.ExceptionLogger - javax.ws.rs.ForbiddenException: HTTP 403 Forbidden
+AUTH SERVICE CLIENT <- AuthServiceClient.login(..): 
+{"errorMessage":"Invalid LoginID","errorDetail":"invalid loginID or password","errorCode":403}
+``` 
 
 ## Examples
 
