@@ -222,7 +222,7 @@ AUTH SERVICE CLIENT <- AuthServiceClient.login(..):
 
 ## Retry on Exceptions
 
-If you need to retry a method on some spicific exception or exceptions then you can use these parameters to setup the retry functionality.
+If you need to retry a method on some specific exception or exceptions then you can use these parameters to setup the retry functionality.
 
 ```Class<? extends Throwable>[] retryExceptions() default {}``` -  a list of exceptions to retry on.
 
