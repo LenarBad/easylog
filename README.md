@@ -18,6 +18,7 @@ EasyLog is an open source library for logging/debugging in Java projects.
       * [Mask fields](#mask-fields)
       * [Logging Styles](#logging-styles)
   * [Exceptions](#exceptions)
+  * [Retry on Exceptions](#retry-on-exceptions)
   * [Examples](#examples)
   * [Warning](#warning)
   * [Issues and suggestions](#issues-and-suggestions)
@@ -218,6 +219,43 @@ request: {
 AUTH SERVICE CLIENT <- AuthServiceClient.login(..): 
 {"errorMessage":"Invalid LoginID","errorDetail":"invalid loginID or password","errorCode":403}
 ``` 
+
+## Retry on Exceptions
+
+If you need to retry a method on some spicific exception or exceptions then you can use these parameters to setup the retry functionality.
+
+```Class<? extends Throwable>[] retryExceptions() default {}``` -  a list of exceptions to retry on.
+
+```int retryAttempts() default 1``` - retry ```retryAttempts``` times.
+
+```long retryDelay() default 0``` - time delay between attempts in _ms_.
+
+These parameters can be set for each method individually.
+
+### Retry Example
+
+```java
+@LogIt(retryExceptions = {ForbiddenException.class, BadRequestException.class}, 
+	retryDelay = 1000, 
+	retryAttempts = 3)
+```
+
+In the logs you will see
+
+```text
+16:26:43.969 [main] ERROR io.lenar.easy.log.UneasyLogger - javax.ws.rs.BadRequestException: HTTP 400 Bad Request 
+ <- UserService.findUser(..)
+Retry 1/3 in 1000 ms
+16:26:45.017 [main] ERROR io.lenar.easy.log.UneasyLogger - javax.ws.rs.BadRequestException: HTTP 400 Bad Request 
+ <- UserService.findUser(..)
+Retry 2/3 in 1000 ms
+16:26:46.063 [main] ERROR io.lenar.easy.log.UneasyLogger - javax.ws.rs.BadRequestException: HTTP 400 Bad Request 
+ <- UserService.findUser(..)
+Retry 3/3 in 1000 ms
+16:26:47.112 [main] ERROR io.lenar.easy.log.ExceptionLogger - javax.ws.rs.BadRequestException: HTTP 400 Bad Request
+ <- UserService.findUser(..): 
+{"code":400,"message":"First name is required","path":null,"parameterName":"firstName"}
+```
 
 ## Examples
 
