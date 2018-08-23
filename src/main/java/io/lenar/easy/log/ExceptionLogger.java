@@ -17,12 +17,11 @@ public class ExceptionLogger {
             logWebApplicationException((WebApplicationException) e, jp, annotation.label());
             return;
         }
-
         logOtherException(e, jp, annotation.label());
     }
 
     private static void logOtherException(Throwable e, JoinPoint jp, String label) {
-        logger.info("{} \r\n{} <- {}: ",
+        logger.error("{} \r\n{} <- {}: ",
                 e.toString(),
                 label,
                 jp.getSignature().toShortString(),

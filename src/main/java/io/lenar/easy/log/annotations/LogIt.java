@@ -22,4 +22,9 @@ public @interface LogIt {
 
     Style style() default PRETTY_PRINT_WITH_NULLS;
 
+    int retryAttempts() default 1; // only one re-try by default
+
+    long retryDelay() default 0;
+
+    Class<? extends Throwable>[] retryExceptions() default {};
 }
