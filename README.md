@@ -6,36 +6,108 @@
 
 EasyLog is an open source library for logging/debugging in Java projects.
 
-* [EasyLog](#easylog)
-  * [How to setup EasyLog](#how-to-setup-easylog)
-  * [How to use EasyLog](#how-to-use-easylog)
-      * [Extend EasyLogger for Spring Project](#extend-easylogger-for-spring-project)
-      * [Extend EasyLoggerNoSpring for Non Spring Project](#extend-easyloggernospring-for-non-spring-project)
-      * [@LogIt annotation](#logit-annotation)
-      * [Logging Level](#logging-level)
-      * [Labels](#labels)
-      * [Exclude parameters from logging](#exclude-parameters-from-logging)
-      * [Mask fields](#mask-fields)
-      * [Logging Styles](#logging-styles)
-  * [Exceptions](#exceptions)
-  * [Retry on Exceptions](#retry-on-exceptions)
-  * [Examples](#examples)
-  * [Warning](#warning)
-  * [Issues and suggestions](#issues-and-suggestions)
-  * [Contributions](#contributions)
+## Table of Contents
+
+* [Overview](#overview)
+* [Quick Start](#quick-start)
+  * [Spring Projects](#spring-projects)
+  * [Non-Spring Projects](non-spring-projects)
+* [@LogIt annotation](#logit-annotation)
+  * [Logging Level](#logging-level)
+  * [Labels](#labels)
+  * [Exclude parameters from logging](#exclude-parameters-from-logging)
+  * [Mask fields](#mask-fields)
+  * [Logging Styles](#logging-styles)
+  * [Retry on Exception](#retry-on-exception)
+* [Exceptions](#exceptions)
+  * [WebApplicationException](#webapplicationexception)
+* [Examples](#examples)
+* [Warning](#warning)
+* [Issues and suggestions](#issues-and-suggestions)
+* [Contributions](#contributions)
 
 
-## How to setup EasyLog
+## Overview
 
-EasyLog supports Java project with and without Spring.
+EasyLog allows you to start logging any method or all class's methods by adding just one annotation <code>@LogIt</code>. 
+
+```java
+    @LogIt
+    public Universe bigBang(int numberOfStars) {
+        ...
+    }
+```
+
+You'll get following
+
+```text
+13:36:06.021 [main] INFO  UneasyLogger - 
+-> public Universe Universe.bigBang(int numberOfStars)
+"numberOfStars": 1
+
+13:36:06.205 [main] INFO  UneasyLogger - 
+Execution/Response time:  162ms
+<- Universe Universe.bigBang(int numberOfStars)
+{
+  "stars": [
+    {
+      "name": "Star-b90637a4-81bb-4c46-9c05-99ecf2dc0502",
+      "type": "RED_GIANT",
+      "planets": [
+        {
+          "name": "Planet-c5308178-4ebe-46c6-a02a-f78d489afc99",
+          "haveSatellites": true
+        }
+      ]
+    }
+  ],
+  "dateOfCreation": "Jun 29, 2018 1:36:06 PM"
+}
+```
+
+You can use many features to customize your log output. 
+
+For example you can mask one or several field or subfield values (<code>@LogIt(maskFields = {"dateOfCreation"})</code>) then every time when <code>dateOfCreation</code> appears in logs it's value will be replaced with <code>XXXMASKEDXXX</code>
+
+
+## Quick Start
 
 See how to setup EasyLog in example projects
 - [EasyLog for non-Spring projects - example](https://github.com/LenarBad/EasyLog-no-Spring-Example)
 - [EasyLog for Spring projects - example](https://github.com/LenarBad/EasyLog-Spring-Example)
 
-## How to use EasyLog
+### Spring Projects
 
-### Extend EasyLogger for Spring Project
+#### pom.xml
+
+First, you need to setup your parent project
+
+```xml
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.0.1.RELEASE</version>
+    </parent>
+```
+
+Second, you need to add 2 dependencies
+
+```xml
+    <dependency>
+        <groupId>io.lenar</groupId>
+        <artifactId>easy-log</artifactId>
+        <version>1.2.0</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-aop</artifactId>
+        <version>2.0.3.RELEASE</version>
+    </dependency>
+```
+
+If your project already has a different parent project (that project also has to pe a Spring project as well) you might not need ```spring-boot-starter-aop``` - just check
+
+#### Extend EasyLogger
 
 In your project create the class that extends the <code>EasyLogger</code> aspect and add the <code>@Component</code> annotation.
 
@@ -48,7 +120,63 @@ public class MyLogger extends EasyLogger {
 }
 ```
 
-### Extend EasyLoggerNoSpring for Non Spring Project
+[back to Table of Contents](#table-of-contents)
+
+### Non-Spring Projects
+
+#### pom.xml
+
+First, you need to add <code>io.lenar:easy-log:{{ site.easylog_version }}</code> dependency
+
+```xml
+    <dependency>
+        <groupId>io.lenar</groupId>
+        <artifactId>easy-log</artifactId>
+        <version>1.2.0</version>
+    </dependency>
+```
+
+Second setup <code>build:plugins</code>
+
+```xml
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>aspectj-maven-plugin</artifactId>
+                <version>1.11</version>
+                <configuration>
+                    <complianceLevel>1.8</complianceLevel>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <verbose>true</verbose>
+                    <Xlint>ignore</Xlint>
+                    <encoding>1.8</encoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>aspectj-compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+```
+
+#### Extend EasyLoggerNoSpring
 
 ```java
 @Aspect
@@ -84,9 +212,9 @@ Also you may need to clear ```target``` folder (```mvn clean``` or just right cl
 
 Maven commands work as expected.
 
-### @LogIt annotation 
+[back to Table of Contents](#table-of-contents)
 
-#### Method level
+## @LogIt annotation 
 
 Annotate the methods that you want to log with <code>@LogIt</code> annotation 
 
@@ -96,7 +224,6 @@ public User createUser(CreateUserForm form) {
     ...
 }
 ```
-#### Class level
 
 If you need to log all methods of a class you can annotate the class with <code>@LogIt</code> annotation
 
@@ -107,6 +234,10 @@ public class ClassWithMethods {
 }
 ```
 
+_Note: If you use ```@LogIt``` for a method and for a class, class's one will be ignored._
+
+[back to Table of Contents](#table-of-contents)
+
 ### Logging Level
 
 You can set the logging level by passing the parameter <code>level</code> with ```@LogIt``` annotation.
@@ -114,6 +245,8 @@ You can set the logging level by passing the parameter <code>level</code> with `
 Available options:  ```DEBUG```, ```INFO```, ```WARN```, ```ERROR```
 
 By default ```level=Level.INFO```
+
+[back to Table of Contents](#table-of-contents)
 
 ### Labels
 
@@ -137,6 +270,9 @@ By default there is no masked field.
 Might be used for: 
  - masking any sensitive information that shouldn't be logged
  - decreasing the amount of logged info. For example we can replace huge lists/arrays (in returned results) that are not important in terms of logging with ```"XXXMASKEDXXX"```
+ 
+[back to Table of Contents](#table-of-contents)
+
  
 ### Logging Styles
 
@@ -173,6 +309,8 @@ Use ```PRETTY_PRINT_WITH_NULLS``` and ```COMPACT_WITH_NULLS``` if you want to lo
 Use ```PRETTY_PRINT_NO_NULLS``` and ```MINIMAL``` if you want to exclude nulls from logging.
 
 ```AS_IS``` is used if you want to serialize the parameters and returned result with the ```toString``` method. In this case ```maskFields``` will be ignored
+
+[back to Table of Contents](#table-of-contents)
 
 ## Exceptions
 
@@ -220,7 +358,9 @@ AUTH SERVICE CLIENT <- AuthServiceClient.login(..):
 {"errorMessage":"Invalid LoginID","errorDetail":"invalid loginID or password","errorCode":403}
 ``` 
 
-## Retry on Exceptions
+[back to Table of Contents](#table-of-contents)
+
+## Retry on Exception
 
 If you need to retry a method on some specific exception or exceptions then you can use these parameters to setup the retry functionality.
 
@@ -257,6 +397,8 @@ Retry 3/3 in 1000 ms
 {"code":400,"message":"First name is required","path":null,"parameterName":"firstName"}
 ```
 
+[back to Table of Contents](#table-of-contents)
+
 ## Examples
 
  ```java
@@ -286,6 +428,8 @@ public User login(String userName, String password) {
     ...
 }
 ```
+
+[back to Table of Contents](#table-of-contents)
 
 Working example projects
 - [EasyLog for non-Spring projects - example](https://github.com/LenarBad/EasyLog-no-Spring-Example)
@@ -325,3 +469,6 @@ Hot issues to work on:
 
  - [#15 Add JavaDocs](https://github.com/LenarBad/EasyLog/issues/15)
  - [#16 Add Unit Tests](https://github.com/LenarBad/EasyLog/issues/16)
+
+
+[back to Table of Contents](#table-of-contents)
