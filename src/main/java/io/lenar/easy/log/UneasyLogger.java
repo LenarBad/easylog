@@ -117,8 +117,9 @@ public class UneasyLogger {
                 delay);
     }
 
-    private boolean isRetryException(Throwable exception, LogIt logIt) {
-        return Stream.of(logIt.retryExceptions()).anyMatch(item -> item.isAssignableFrom(exception.getClass()));
+    private boolean isRetryException(Throwable thrownException, LogIt logIt) {
+        return Stream.of(logIt.retryExceptions())
+                .anyMatch(item -> item.isAssignableFrom(thrownException.getClass()));
     }
 
     private void log(String message, Level level) {
