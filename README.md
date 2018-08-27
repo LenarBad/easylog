@@ -6,6 +6,7 @@
 
 EasyLog is an open source library for logging/debugging in Java projects.
 
+## Table of Contents
 
 * [Overview](#overview)
 * [Quick Start](#quick-start)
@@ -117,6 +118,8 @@ public class MyLogger extends EasyLogger {
 }
 ```
 
+[back to Table of Contents](#table-of-contents)
+
 ### Non-Spring Projects
 
 #### pom.xml
@@ -207,6 +210,8 @@ Also you may need to clear ```target``` folder (```mvn clean``` or just right cl
 
 Maven commands work as expected.
 
+[back to Table of Contents](#table-of-contents)
+
 ## @LogIt annotation 
 
 Annotate the methods that you want to log with <code>@LogIt</code> annotation 
@@ -229,6 +234,8 @@ public class ClassWithMethods {
 
 _Note: If you use ```@LogIt``` for a method and for a class, class's one will be ignored._
 
+[back to Table of Contents](#table-of-contents)
+
 ### Logging Level
 
 You can set the logging level by passing the parameter <code>level</code> with ```@LogIt``` annotation.
@@ -236,6 +243,8 @@ You can set the logging level by passing the parameter <code>level</code> with `
 Available options:  ```DEBUG```, ```INFO```, ```WARN```, ```ERROR```
 
 By default ```level=Level.INFO```
+
+[back to Table of Contents](#table-of-contents)
 
 ### Labels
 
@@ -259,6 +268,9 @@ By default there is no masked field.
 Might be used for: 
  - masking any sensitive information that shouldn't be logged
  - decreasing the amount of logged info. For example we can replace huge lists/arrays (in returned results) that are not important in terms of logging with ```"XXXMASKEDXXX"```
+ 
+[back to Table of Contents](#table-of-contents)
+
  
 ### Logging Styles
 
@@ -296,6 +308,8 @@ Use ```PRETTY_PRINT_NO_NULLS``` and ```MINIMAL``` if you want to exclude nulls f
 
 ```AS_IS``` is used if you want to serialize the parameters and returned result with the ```toString``` method. In this case ```maskFields``` will be ignored
 
+[back to Table of Contents](#table-of-contents)
+
 ### Retry on Exception
 
 If you need to retry a method on some specific exception or exceptions then you can use these parameters to setup the retry functionality.
@@ -331,6 +345,8 @@ Retry 3/3 in 1000 ms
 {"code":400,"message":"First name is required","path":null,"parameterName":"firstName"}
 ```
 
+[back to Table of Contents](#table-of-contents)
+
 ## Examples
 
  ```java
@@ -360,6 +376,8 @@ public User login(String userName, String password) {
     ...
 }
 ```
+
+[back to Table of Contents](#table-of-contents)
 
 Working example projects
 - [EasyLog for non-Spring projects - example](https://github.com/LenarBad/EasyLog-no-Spring-Example)
@@ -399,3 +417,6 @@ Hot issues to work on:
 
  - [#15 Add JavaDocs](https://github.com/LenarBad/EasyLog/issues/15)
  - [#16 Add Unit Tests](https://github.com/LenarBad/EasyLog/issues/16)
+
+
+[back to Table of Contents](#table-of-contents)
