@@ -37,7 +37,7 @@ EasyLog allows you to start logging any method or all class's methods by adding 
 
 You'll get following
 
-{% highlight text %}
+```text
 13:36:06.021 [main] INFO  UneasyLogger - 
 -> public Universe Universe.bigBang(int numberOfStars)
 "numberOfStars": 1
@@ -60,7 +60,7 @@ Execution/Response time:  162ms
   ],
   "dateOfCreation": "Jun 29, 2018 1:36:06 PM"
 }
-{% endhighlight %}
+```
 
 You can use many features to customize your log output. 
 
@@ -307,9 +307,6 @@ If you need to retry a method on some specific exception or exceptions then you 
 ```long retryDelay() default 0``` - time delay between attempts in _ms_.
 
 These parameters can be set for each method individually.
-
-
-## Example
 
 ```java
 @LogIt(retryExceptions = {ForbiddenException.class, BadRequestException.class}, 
