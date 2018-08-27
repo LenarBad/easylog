@@ -397,6 +397,9 @@ Retry 3/3 in 1000 ms
 {"code":400,"message":"First name is required","path":null,"parameterName":"firstName"}
 ```
 
+_Note: You can specify a parent exception to cover all child exceptions. 
+For example ```WebApplicationException``` covers ```BadRequestException```, ```ForbiddenException```,```NotFoundException``` etc_
+
 [back to Table of Contents](#table-of-contents)
 
 ## Examples
