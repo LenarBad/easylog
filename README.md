@@ -398,7 +398,7 @@ Retry 3/3 in 1000 ms
 ```
 
 _Note: You can specify a parent exception to cover all child exceptions. 
-For example ```WebApplicationException``` covers ```BadRequestException```, ```ForbiddenException```_ ,```NotFoundException``` etc
+For example ```WebApplicationException``` covers ```BadRequestException```, ```ForbiddenException```,```NotFoundException``` etc_
 
 [back to Table of Contents](#table-of-contents)
 
