@@ -19,6 +19,8 @@ EasyLog is an open source library for logging/debugging in Java projects.
   * [Mask fields](#mask-fields)
   * [Logging Styles](#logging-styles)
   * [Retry on Exception](#retry-on-exception)
+* [Exceptions](#exceptions)
+  * [WebApplicationException](#webapplicationexception)
 * [Examples](#examples)
 * [Warning](#warning)
 * [Issues and suggestions](#issues-and-suggestions)
@@ -310,7 +312,55 @@ Use ```PRETTY_PRINT_NO_NULLS``` and ```MINIMAL``` if you want to exclude nulls f
 
 [back to Table of Contents](#table-of-contents)
 
-### Retry on Exception
+## Exceptions
+
+If the method annotated with ```@LogIt``` (or belongs to the class annotated with ```LogIt```) throws an exception, it will be logged like this
+
+```
+14:17:54.359 [main] ERROR  io.lenar.easy.log.ExceptionLogger - java.lang.ArithmeticException: / by zero 
+ <- Universe.getStarsBeforeBigBang(): 
+java.lang.ArithmeticException: / by zero
+	at io.lenar.examples.model.Universe.getStarsBeforeBigBang_aroundBody4(Universe.java:50) [classes/:na]
+	at io.lenar.examples.model.Universe$AjcClosure5.run(Universe.java:1) ~[classes/:na]
+	at org.aspectj.runtime.reflect.JoinPointImpl.proceed(JoinPointImpl.java:221) ~[aspectjrt-1.8.7.jar:na]
+	at io.lenar.easy.log.UneasyLogger.logMethod(UneasyLogger.java:35) ~[easy-log-1.1.5-SNAPSHOT.jar:na]
+	at io.lenar.easy.log.EasyLoggerNoSpring.logItMethodLevel(EasyLoggerNoSpring.java:22) ~[easy-log-1.1.5-SNAPSHOT.jar:na]
+	at io.lenar.examples.log.MyLogger.methodLog(MyLogger.java:22) ~[classes/:na]
+	at io.lenar.examples.model.Universe.getStarsBeforeBigBang(Universe.java:49) [classes/:na]
+	at io.lenar.examples.LoggerTest.exceptionTest(LoggerTest.java:32) [test-classes/:na]
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[na:1.8.0_152]
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62) ~[na:1.8.0_152]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[na:1.8.0_152]
+	at java.lang.reflect.Method.invoke(Method.java:498) ~[na:1.8.0_152]
+...
+```
+
+### WebApplicationException
+
+EasyLog logs ```WebApplicationException```s different way.
+
+So if a service call throws the ```WebApplicationException``` exception then we will be also able to log error messages.
+
+For example
+
+```text
+08:34:40.439 [main] INFO  UneasyLogger - 
+AUTH SERVICE CLIENT
+-> public LoginResponse AuthServiceClient.login(LoginRequest request)
+request: {
+  "password": "passasdfasdf",
+  "loginID": "bademail@webmail.rei.com"
+}
+
+
+08:34:40.682 [main] ERROR io.lenar.easy.log.ExceptionLogger - javax.ws.rs.ForbiddenException: HTTP 403 Forbidden
+AUTH SERVICE CLIENT <- AuthServiceClient.login(..): 
+{"errorMessage":"Invalid LoginID","errorDetail":"invalid loginID or password","errorCode":403}
+``` 
+
+[back to Table of Contents](#table-of-contents)
+
+## Retry on Exception
 
 If you need to retry a method on some specific exception or exceptions then you can use these parameters to setup the retry functionality.
 
@@ -321,6 +371,8 @@ If you need to retry a method on some specific exception or exceptions then you 
 ```long retryDelay() default 0``` - time delay between attempts in _ms_.
 
 These parameters can be set for each method individually.
+
+### Retry Example
 
 ```java
 @LogIt(retryExceptions = {ForbiddenException.class, BadRequestException.class}, 
