@@ -23,10 +23,11 @@
  */
 package io.lenar.easy.log.support;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import io.lenar.easy.log.annotations.LogIt;
@@ -41,7 +42,17 @@ public class PJPSupport {
      * ProceedingJoinPoint jp as a map
      */
     public static Map<String, Object> getMethodParameters(ProceedingJoinPoint jp, String[] ignoreList) {
-        String[] keys = ((MethodSignature) jp.getSignature()).getParameterNames();
+
+        MethodSignature methodSignature = ((MethodSignature) jp.getSignature());
+        String[] keys;
+        if (methodSignature.getDeclaringType().isInterface()) {
+            List<String> keyList = Arrays.stream(methodSignature.getMethod().getParameters())
+                    .map(parameter -> parameter.getName()).collect(Collectors.toList());
+            keys = keyList.toArray(new String[keyList.size()]);
+        } else {
+            keys = ((MethodSignature) jp.getSignature()).getParameterNames();
+        }
+
         Object[] values = jp.getArgs();
 
         Map<String, Object> params = new HashMap<>();
@@ -72,10 +83,12 @@ public class PJPSupport {
         String signature = methodSignature.toShortString();
         String[] names = methodSignature.getParameterNames();
         Class[] types = methodSignature.getParameterTypes();
+        String params = "";
         if (names == null || names.length == 0) {
-            signature = signature.replace("..", "");
+            if (types != null && types.length != 0) {
+                params = Arrays.stream(types).map(type -> type.getSimpleName()).collect(Collectors.joining(", "));
+            }
         } else {
-            String params = "";
             for (int i = 0; i < names.length; i++) {
                 params = params + types[i].getSimpleName() + " " + names[i];
                 if (isInArray(ignoreList, names[i])) {
@@ -87,8 +100,8 @@ public class PJPSupport {
                 }
                 if (i < names.length - 1) params = params + ", ";
             }
-            signature = signature.replace("..", params);
         }
+        signature = signature.replace("..", params);
         signature = returnedType + " " + signature;
         if (showModifier) signature = Modifier.toString(methodSignature.getModifiers()) + " " + signature;
         return signature;
@@ -103,6 +116,30 @@ public class PJPSupport {
             return true;
         }
         return false;
+    }
+
+
+    public static boolean hasTargetMethodLevelLogItAnnotation(ProceedingJoinPoint jp) {
+        Method method = getMethodSignature(jp).getMethod();
+        try {
+            Method targetMethod = jp.getTarget().getClass().getDeclaredMethod(method.getName(), method.getParameterTypes());
+            return targetMethod.isAnnotationPresent(LogIt.class);
+        } catch (NoSuchMethodException e) {
+            // do nothing
+        }
+        return false;
+    }
+
+    public static boolean hasTargetClassLevelLogItAnnotation(ProceedingJoinPoint jp) {
+        return jp.getTarget().getClass().isAnnotationPresent(LogIt.class);
+    }
+
+    public static LogIt getInterfaceMethodLevelAnnotationIfAny(JoinPoint jp) {
+        return ((MethodSignature) jp.getSignature()).getMethod().getAnnotation(LogIt.class);
+    }
+
+    public static LogIt getInterfaceLevelAnnotationIfAny(JoinPoint jp) {
+        return (LogIt) jp.getSignature().getDeclaringType().getAnnotation(LogIt.class);
     }
 
     private static boolean isInArray(String[] array, String parameterName) {

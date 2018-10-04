@@ -31,9 +31,12 @@ import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.reflect.MethodSignature;
+
+import java.lang.reflect.Method;
 
 import static io.lenar.easy.log.ExceptionLogger.logException;
-import static io.lenar.easy.log.support.PJPSupport.hasMethodLevelLogItAnnotation;
+import static io.lenar.easy.log.support.PJPSupport.*;
 
 @Aspect
 public class EasyLogger extends UneasyLogger {
@@ -41,9 +44,12 @@ public class EasyLogger extends UneasyLogger {
     @Pointcut("execution(* *(..))")
     public void anyMethod() {}
 
+    @Pointcut("within(*.*..*+) && execution(* *(..))")
+    public void anyMethodOfAnyImplementationOfAnyInterface() {}
+
     @Around("anyMethod() && @within(annotation)")
     public Object logItClassLevel(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
-        if (hasMethodLevelLogItAnnotation(jp)) {
+        if (hasTargetMethodLevelLogItAnnotation(jp)) {
             return jp.proceed(jp.getArgs());
         }
         return logMethod(jp, annotation);
@@ -55,8 +61,8 @@ public class EasyLogger extends UneasyLogger {
     }
 
     @AfterThrowing(pointcut = "anyMethod() && @within(annotation)", throwing = "e")
-    public void logExceptionClassLevel(JoinPoint  jp, LogIt annotation, Throwable e) {
-        if (!hasMethodLevelLogItAnnotation(jp)) {
+    public void logExceptionClassLevel(ProceedingJoinPoint  jp, LogIt annotation, Throwable e) {
+        if (!hasTargetMethodLevelLogItAnnotation(jp)) {
             logException(jp, annotation, e);
         }
     }
