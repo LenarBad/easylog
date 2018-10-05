@@ -61,8 +61,8 @@ public class EasyLogger extends UneasyLogger {
     }
 
     @AfterThrowing(pointcut = "anyMethod() && @within(annotation)", throwing = "e")
-    public void logExceptionClassLevel(ProceedingJoinPoint  jp, LogIt annotation, Throwable e) {
-        if (!hasTargetMethodLevelLogItAnnotation(jp)) {
+    public void logExceptionClassLevel(JoinPoint  jp, LogIt annotation, Throwable e) {
+        if (!hasTargetMethodLevelLogItAnnotation((ProceedingJoinPoint) jp)) {
             logException(jp, annotation, e);
         }
     }

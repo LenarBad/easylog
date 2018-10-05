@@ -82,14 +82,27 @@ public class PJPSupport {
         String returnedType = methodSignature.getReturnType().getSimpleName();
         String signature = methodSignature.toShortString();
         String[] names = methodSignature.getParameterNames();
-        Class[] types = methodSignature.getParameterTypes();
-        String params = "";
-        if (names == null || names.length == 0) {
-            if (types != null && types.length != 0) {
-                params = Arrays.stream(types).map(type -> type.getSimpleName()).collect(Collectors.joining(", "));
+        Class[] types = methodSignature.getMethod().getParameterTypes();
+        String modifier = showModifier ? Modifier.toString(methodSignature.getModifiers()) + " " : "";
+
+        if (jp.getSignature().getDeclaringType().isInterface()) {
+            try {
+                Method targetMethod = jp.getTarget().getClass().getDeclaredMethod(methodSignature.getMethod().getName(), types);
+                signature = jp.getTarget().getClass().getSimpleName() + "." + targetMethod.getName() + "(..)";
+                names = Arrays.stream(targetMethod.getParameters())
+                        .map(parameter -> parameter.getName())
+                        .collect(Collectors.toList())
+                        .toArray(new String[targetMethod.getParameters().length]);
+                modifier = showModifier ? Modifier.toString(targetMethod.getModifiers()) + " " : "";
+
+            } catch (NoSuchMethodException e) {
+                // Do nothing
             }
-        } else {
-            for (int i = 0; i < names.length; i++) {
+        }
+
+        String params = "";
+
+        for (int i = 0; i < names.length; i++) {
                 params = params + types[i].getSimpleName() + " " + names[i];
                 if (isInArray(ignoreList, names[i])) {
                     params = params + "<NOT_LOGGED>";
@@ -99,11 +112,8 @@ public class PJPSupport {
                     }
                 }
                 if (i < names.length - 1) params = params + ", ";
-            }
         }
-        signature = signature.replace("..", params);
-        signature = returnedType + " " + signature;
-        if (showModifier) signature = Modifier.toString(methodSignature.getModifiers()) + " " + signature;
+        signature = returnedType + " " + modifier + signature.replace("..", params);
         return signature;
     }
 
