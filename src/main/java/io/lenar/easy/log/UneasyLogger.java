@@ -47,8 +47,7 @@ public class UneasyLogger {
         try {
             logMethodInvocation(
                     getMethodSignatureAsString(jp, true, annotation.ignoreParameters(), annotation.maskFields()),
-                    getMethodParameters(jp, annotation.ignoreParameters()),
-                    annotation);
+                    getMethodParameters(jp, annotation.ignoreParameters()), annotation);
         } catch (Exception ex) {
             log("Failed to process and log method's parameters \n" +
                     getMethodSignatureAsString(jp, true, annotation.ignoreParameters(), annotation.maskFields()),

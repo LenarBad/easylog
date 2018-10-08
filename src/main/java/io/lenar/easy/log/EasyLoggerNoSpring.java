@@ -27,7 +27,6 @@ import io.lenar.easy.log.annotations.LogIt;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Pointcut;
 
 import static io.lenar.easy.log.ExceptionLogger.logException;
 import static io.lenar.easy.log.support.PJPSupport.hasMethodLevelLogItAnnotation;
@@ -46,7 +45,7 @@ public class EasyLoggerNoSpring extends UneasyLogger {
     }
 
     public void logExceptionClassLevel(JoinPoint jp, LogIt annotation, Throwable e) {
-        if (!hasMethodLevelLogItAnnotation(jp)) {
+        if (!hasMethodLevelLogItAnnotation((ProceedingJoinPoint) jp)) {
             logException(jp, annotation, e);
         }
     }

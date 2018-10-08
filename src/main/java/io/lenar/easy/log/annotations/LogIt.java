@@ -26,13 +26,11 @@ package io.lenar.easy.log.annotations;
 import static io.lenar.easy.log.annotations.Level.INFO;
 import static io.lenar.easy.log.annotations.Style.PRETTY_PRINT_WITH_NULLS;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
+@Inherited
 public @interface LogIt {
 
     String label() default "";

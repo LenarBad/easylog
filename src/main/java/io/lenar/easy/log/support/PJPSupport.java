@@ -23,10 +23,10 @@
  */
 package io.lenar.easy.log.support;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import io.lenar.easy.log.annotations.LogIt;
@@ -41,7 +41,17 @@ public class PJPSupport {
      * ProceedingJoinPoint jp as a map
      */
     public static Map<String, Object> getMethodParameters(ProceedingJoinPoint jp, String[] ignoreList) {
-        String[] keys = ((MethodSignature) jp.getSignature()).getParameterNames();
+
+        MethodSignature methodSignature = ((MethodSignature) jp.getSignature());
+        String[] keys;
+        if (methodSignature.getDeclaringType().isInterface()) {
+            List<String> keyList = Arrays.stream(methodSignature.getMethod().getParameters())
+                    .map(parameter -> parameter.getName()).collect(Collectors.toList());
+            keys = keyList.toArray(new String[keyList.size()]);
+        } else {
+            keys = ((MethodSignature) jp.getSignature()).getParameterNames();
+        }
+
         Object[] values = jp.getArgs();
 
         Map<String, Object> params = new HashMap<>();
@@ -71,12 +81,27 @@ public class PJPSupport {
         String returnedType = methodSignature.getReturnType().getSimpleName();
         String signature = methodSignature.toShortString();
         String[] names = methodSignature.getParameterNames();
-        Class[] types = methodSignature.getParameterTypes();
-        if (names == null || names.length == 0) {
-            signature = signature.replace("..", "");
-        } else {
-            String params = "";
-            for (int i = 0; i < names.length; i++) {
+        Class[] types = methodSignature.getMethod().getParameterTypes();
+        String modifier = showModifier ? Modifier.toString(methodSignature.getModifiers()) + " " : "";
+
+        if (jp.getSignature().getDeclaringType().isInterface()) {
+            try {
+                Method targetMethod = jp.getTarget().getClass().getDeclaredMethod(methodSignature.getMethod().getName(), types);
+                signature = jp.getTarget().getClass().getSimpleName() + "." + targetMethod.getName() + "(..)";
+                names = Arrays.stream(targetMethod.getParameters())
+                        .map(parameter -> parameter.getName())
+                        .collect(Collectors.toList())
+                        .toArray(new String[targetMethod.getParameters().length]);
+                modifier = showModifier ? Modifier.toString(targetMethod.getModifiers()) + " " : "";
+
+            } catch (NoSuchMethodException e) {
+                // Do nothing
+            }
+        }
+
+        String params = "";
+
+        for (int i = 0; i < names.length; i++) {
                 params = params + types[i].getSimpleName() + " " + names[i];
                 if (isInArray(ignoreList, names[i])) {
                     params = params + "<NOT_LOGGED>";
@@ -86,11 +111,8 @@ public class PJPSupport {
                     }
                 }
                 if (i < names.length - 1) params = params + ", ";
-            }
-            signature = signature.replace("..", params);
         }
-        signature = returnedType + " " + signature;
-        if (showModifier) signature = Modifier.toString(methodSignature.getModifiers()) + " " + signature;
+        signature = returnedType + " " + modifier + signature.replace("..", params);
         return signature;
     }
 
@@ -98,11 +120,52 @@ public class PJPSupport {
         return getMethodSignature(jp).getReturnType().getSimpleName().equals("void");
     }
 
-    public static boolean hasMethodLevelLogItAnnotation(JoinPoint jp) {
-        if (((MethodSignature) jp.getSignature()).getMethod().getAnnotationsByType(LogIt.class).length != 0) {
-            return true;
+    public static boolean hasMethodLevelLogItAnnotation(ProceedingJoinPoint jp) {
+        return getMethodSignature(jp).getMethod().isAnnotationPresent(LogIt.class);
+    }
+
+
+    public static boolean hasTargetMethodLevelLogItAnnotation(ProceedingJoinPoint jp) {
+        Method method = getMethodSignature(jp).getMethod();
+        try {
+            Method targetMethod = jp.getTarget().getClass().getDeclaredMethod(method.getName(), method.getParameterTypes());
+            return targetMethod.isAnnotationPresent(LogIt.class);
+        } catch (NoSuchMethodException e) {
+            // do nothing
         }
         return false;
+    }
+
+    public static boolean hasTargetClassLevelLogItAnnotation(ProceedingJoinPoint jp) {
+        return jp.getTarget().getClass().isAnnotationPresent(LogIt.class);
+    }
+
+    public static LogIt getInterfaceMethodLevelAnnotationIfAny(ProceedingJoinPoint jp) {
+        if (jp.getSignature().getDeclaringType().isInterface()) {
+            return getMethodSignature(jp).getMethod().getAnnotation(LogIt.class);
+        } else {
+            Method method = getMethodSignature(jp).getMethod();
+            return Arrays.stream(jp.getSignature().getDeclaringType().getInterfaces())
+                    .map(anInterface -> {
+                        try {
+                            return anInterface.getDeclaredMethod(method.getName(), method.getParameterTypes());
+                        } catch (NoSuchMethodException e) {
+                            return null;
+                        }
+                    })
+                    .filter(interfaceMethod -> interfaceMethod != null && interfaceMethod.isAnnotationPresent(LogIt.class))
+                    .map(interfaceMethod -> interfaceMethod.getAnnotation(LogIt.class)).findFirst().orElse(null);
+        }
+    }
+
+    public static LogIt getInterfaceLevelAnnotationIfAny(JoinPoint jp) {
+        if (jp.getSignature().getDeclaringType().isInterface()) {
+            return (LogIt) jp.getSignature().getDeclaringType().getAnnotation(LogIt.class);
+        } else {
+            return (LogIt) Arrays.stream(jp.getSignature().getDeclaringType().getInterfaces())
+                    .filter(anInterface -> anInterface.isAnnotationPresent(LogIt.class))
+                    .map(aClass -> aClass.getAnnotation(LogIt.class)).findFirst().orElse(null);
+        }
     }
 
     private static boolean isInArray(String[] array, String parameterName) {
