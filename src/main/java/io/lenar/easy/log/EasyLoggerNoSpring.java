@@ -45,7 +45,7 @@ public class EasyLoggerNoSpring extends UneasyLogger {
     }
 
     public void logExceptionClassLevel(JoinPoint jp, LogIt annotation, Throwable e) {
-        if (!hasMethodLevelLogItAnnotation(jp)) {
+        if (!hasMethodLevelLogItAnnotation((ProceedingJoinPoint) jp)) {
             logException(jp, annotation, e);
         }
     }

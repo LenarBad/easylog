@@ -44,9 +44,6 @@ public class EasyLogger extends UneasyLogger {
     @Pointcut("execution(* *(..))")
     public void anyMethod() {}
 
-    @Pointcut("within(*.*..*+) && execution(* *(..))")
-    public void anyMethodOfAnyImplementationOfAnyInterface() {}
-
     @Around("anyMethod() && @within(annotation)")
     public Object logItClassLevel(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
         if (hasTargetMethodLevelLogItAnnotation(jp)) {
