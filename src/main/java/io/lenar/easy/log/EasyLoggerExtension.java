@@ -4,7 +4,7 @@ import io.lenar.easy.log.annotations.LogIt;
 import org.aspectj.lang.ProceedingJoinPoint;
 import static io.lenar.easy.log.support.PJPSupport.*;
 
-public class InterfaceLogger extends UneasyLogger {
+public class EasyLoggerExtension extends UneasyLogger {
 
     public Object logIfMethodHasAnnotatedInterface(ProceedingJoinPoint jp) throws Throwable {
         if (hasTargetMethodLevelLogItAnnotation(jp) || hasTargetClassLevelLogItAnnotation(jp)) {
