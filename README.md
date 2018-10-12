@@ -22,6 +22,7 @@ EasyLog is an open source library for logging/debugging in Java projects.
   * [WebApplicationException](#webapplicationexception)
   * [Retry on Exception](#retry-on-exception)
 * [Interfaces](#interfaces)
+  * [RESTEasy Client Interfaces. JAX-RS](#resteasy-client-interfaces)
 * [Examples](#examples)
 * [Warning](#warning)
 * [Issues and suggestions](#issues-and-suggestions)
@@ -426,7 +427,9 @@ public class LoggerExtension extends EasyLoggerExtension {
 Now you can annotate any method of any interface or any interface inside this package and its sub-packages.
 It will apply for all implementations of the interface.
 
-_Note: You can even annotate RESTful client interfaces that are used for RESTEasy Client Proxies (interfaces with ```JAX-RS``` annotations)._
+### RESTEasy Client Interfaces
+
+You can even annotate RESTful client interfaces that are used for RESTEasy Client Proxies (interfaces with ```JAX-RS``` annotations)._
 
 ```java
 @Path("/users")
@@ -435,23 +438,25 @@ public interface UserService {
 
    @GET
    @Produces("application/json")
-   @Path("{id}")
-   public User getUser(@PathParam("id") int id);
+   @Path("/{id}")
+   User getUser(@PathParam("id") int id);
 
    @POST
    @Consumes("application/json")
    @Produces("application/json")
-   public User createUser(User user);
+   User createUser(User user);
 
    @PUT
    @Consumes("application/json")
    @Produces("application/json")
-   @Path("{id}")
-   public User updateUser(@PathParam("id") int id, User user);
+   @Path("/{id}")
+   User updateUser(@PathParam("id") int id, User user);
 }
 ```
 
 ```LogIt``` can be used either for the whole interface or for its methods
+
+[back to Table of Contents](#table-of-contents)
 
 ## Examples
 
