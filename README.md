@@ -18,9 +18,11 @@ EasyLog is an open source library for logging/debugging in Java projects.
   * [Exclude parameters from logging](#exclude-parameters-from-logging)
   * [Mask fields](#mask-fields)
   * [Logging Styles](#logging-styles)
-  * [Retry on Exception](#retry-on-exception)
 * [Exceptions](#exceptions)
   * [WebApplicationException](#webapplicationexception)
+  * [Retry on Exception](#retry-on-exception)
+* [Interfaces](#interfaces)
+  * [RESTEasy Client Interfaces. JAX-RS](#resteasy-client-interfaces)
 * [Examples](#examples)
 * [Warning](#warning)
 * [Issues and suggestions](#issues-and-suggestions)
@@ -358,9 +360,7 @@ AUTH SERVICE CLIENT <- AuthServiceClient.login(..):
 {"errorMessage":"Invalid LoginID","errorDetail":"invalid loginID or password","errorCode":403}
 ``` 
 
-[back to Table of Contents](#table-of-contents)
-
-## Retry on Exception
+### Retry on Exception
 
 If you need to retry a method on some specific exception or exceptions then you can use these parameters to setup the retry functionality.
 
@@ -399,6 +399,62 @@ Retry 3/3 in 1000 ms
 
 _Note: You can specify a parent exception to cover all child exceptions. 
 For example ```WebApplicationException``` covers ```BadRequestException```, ```ForbiddenException```,```NotFoundException``` etc_
+
+[back to Table of Contents](#table-of-contents)
+
+## Interfaces
+
+If you want to log interface's method in all interface implementations then you can enable that feature by adding LoggerExtension like that
+
+```java
+@Aspect
+@Component
+public class LoggerExtension extends EasyLoggerExtension {
+
+    @Pointcut("execution(* com.yourcompany.yourapp...*.*(..))")
+    public void anyMethodInPackage() {}
+
+    @Around("anyMethodInPackage()")
+    public Object method(ProceedingJoinPoint jp) throws Throwable {
+        return logIfMethodHasAnnotatedInterface(jp);
+    }
+
+}
+```
+
+```com.yourcompany.yourapp``` is your application package. It might be the top level package or some specific package in your application.
+
+Now you can annotate any method of any interface or any interface inside this package and its sub-packages.
+It will apply for all implementations of the interface.
+
+### RESTEasy Client Interfaces
+
+You can even annotate RESTful client interfaces that are used for RESTEasy Client Proxies (interfaces with ```JAX-RS``` annotations)._
+
+```java
+@Path("/users")
+@LogIt(label = "USER SERVICE CLIENT")
+public interface UserService {
+
+   @GET
+   @Produces("application/json")
+   @Path("/{id}")
+   User getUser(@PathParam("id") int id);
+
+   @POST
+   @Consumes("application/json")
+   @Produces("application/json")
+   User createUser(User user);
+
+   @PUT
+   @Consumes("application/json")
+   @Produces("application/json")
+   @Path("/{id}")
+   User updateUser(@PathParam("id") int id, User user);
+}
+```
+
+```LogIt``` can be used either for the whole interface or for its methods
 
 [back to Table of Contents](#table-of-contents)
 

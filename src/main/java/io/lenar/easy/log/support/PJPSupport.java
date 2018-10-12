@@ -87,7 +87,9 @@ public class PJPSupport {
         if (jp.getSignature().getDeclaringType().isInterface()) {
             try {
                 Method targetMethod = jp.getTarget().getClass().getDeclaredMethod(methodSignature.getMethod().getName(), types);
-                signature = jp.getTarget().getClass().getSimpleName() + "." + targetMethod.getName() + "(..)";
+                if (!isJavaxWsRsInterface(jp)) {
+                    signature = jp.getTarget().getClass().getSimpleName() + "." + targetMethod.getName() + "(..)";
+                }
                 names = Arrays.stream(targetMethod.getParameters())
                         .map(parameter -> parameter.getName())
                         .collect(Collectors.toList())
@@ -114,6 +116,11 @@ public class PJPSupport {
         }
         signature = returnedType + " " + modifier + signature.replace("..", params);
         return signature;
+    }
+
+    private static boolean isJavaxWsRsInterface(ProceedingJoinPoint jp) {
+        return jp.getSignature().getDeclaringType().isAnnotationPresent(javax.ws.rs.Path.class)
+                || getMethodSignature(jp).getMethod().isAnnotationPresent(javax.ws.rs.Path.class);
     }
 
     public static boolean isVoid(ProceedingJoinPoint jp) {
