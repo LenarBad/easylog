@@ -110,6 +110,7 @@ public class AnnotatedInterfaceSignature extends AnnotatedSignature {
         if (effectiveAnnotation != null) return effectiveAnnotation;
         if (hasTargetMethodAnnotation()) {
             effectiveAnnotation = targetMethodAnnotation();
+            return effectiveAnnotation;
         }
         if (hasTargetClassAnnotation()) {
             effectiveAnnotation = targetClassAnnotation();
@@ -121,6 +122,7 @@ public class AnnotatedInterfaceSignature extends AnnotatedSignature {
         }
         if (hasInterfaceLevelAnnotation()) {
             effectiveAnnotation = interfaceLevelAnnotation();
+            return effectiveAnnotation;
         }
         return effectiveAnnotation;
     }
