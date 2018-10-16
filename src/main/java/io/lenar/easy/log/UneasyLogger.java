@@ -24,9 +24,6 @@
 package io.lenar.easy.log;
 
 import static io.lenar.easy.log.annotations.Style.AS_IS;
-import static io.lenar.easy.log.support.PJPSupport.getMethodParameters;
-import static io.lenar.easy.log.support.PJPSupport.getMethodSignatureAsString;
-import static io.lenar.easy.log.support.PJPSupport.isVoid;
 import static io.lenar.easy.log.support.SerializationSupport.objectToString;
 import static io.lenar.easy.log.support.SerializationSupport.paramsToString;
 
@@ -36,6 +33,8 @@ import java.util.stream.Stream;
 
 import io.lenar.easy.log.annotations.Level;
 import io.lenar.easy.log.annotations.LogIt;
+import io.lenar.easy.log.annotations.Style;
+import io.lenar.easy.log.support.signature.AnnotatedInterfaceSignature;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.slf4j.LoggerFactory;
 
@@ -43,52 +42,58 @@ public class UneasyLogger {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(UneasyLogger.class);
 
-    protected Object logMethod(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
+    protected  Object logMethod(AnnotatedInterfaceSignature signature) throws Throwable {
+        LogIt annotation = signature.effectiveAnnotation();
         try {
-            logMethodInvocation(
-                    getMethodSignatureAsString(jp, true, annotation.ignoreParameters(), annotation.maskFields()),
-                    getMethodParameters(jp, annotation.ignoreParameters()), annotation);
-        } catch (Exception ex) {
-            log("Failed to process and log method's parameters \n" +
-                    getMethodSignatureAsString(jp, true, annotation.ignoreParameters(), annotation.maskFields()),
+            logMethodInvocation(signature);
+        } catch (Exception ex){
+            log("Failed to process and log method's parameters \r\n" + signature.getMethodSignatureAsString(true),
                     annotation.level());
         }
 
         long startTime = System.currentTimeMillis();
-        Object result = proceedWithRetry(jp, annotation);
+        Object result = proceedWithRetry(signature.jp, annotation);
         long endTime = System.currentTimeMillis();
 
         try {
             logMethodReturn(
                     endTime - startTime,
-                    getMethodSignatureAsString(jp, false, annotation.ignoreParameters(), annotation.maskFields()),
-                    isVoid(jp),
+                    signature.getMethodSignatureAsString(false),
+                    signature.isVoid(),
                     result,
                     annotation);
         } catch (Exception ex) {
-            log("Failed to process and log method's return \n" +
-                            getMethodSignatureAsString(jp, false, annotation.ignoreParameters(), annotation.maskFields()),
+            log("Failed to process and log method's return \r\n" +
+                            signature.getMethodSignatureAsString(false),
                     annotation.level());
         }
 
         return result;
     }
 
-    private void logMethodInvocation(String methodName, Map<String, Object> params, LogIt logIt) {
-        String message = "\n-> " + methodName + "\n";
-        if (!logIt.label().isEmpty()) message = "\n" + logIt.label() + message;
+    private void logMethodInvocation(AnnotatedInterfaceSignature signature) {
+        String methodName = signature.getMethodSignatureAsString(true);
+
+        LogIt annotation = signature.effectiveAnnotation();
+        Map<String, Object> params = signature.getMethodParameters(annotation.ignoreParameters());
+        String label = annotation.label();
+        Style style = annotation.style();
+        String[] maskFields = annotation.maskFields();
+
+        String message = "\r\n-> " + methodName + "\r\n";
+        if (!label.isEmpty()) message = "\r\n" + label + message;
         if (!params.isEmpty()) {
-            if (logIt.style() != AS_IS) {
-                message = message + paramsToString(params, logIt.maskFields(), logIt.style().prettyPrint, logIt.style().logNulls) + "\n";
+            if (style != AS_IS) {
+                message = message + paramsToString(params, maskFields, style.prettyPrint, style.logNulls) + "\r\n";
             } else {
                 String paramsString = params.entrySet().stream()
                         .map(entry -> entry.getKey() + ": "
                                 + ( (entry.getValue() == null) ? "null" : entry.getValue().toString()))
-                        .collect(Collectors.joining("\n"));
-                message = message + paramsString + "\n";
+                        .collect(Collectors.joining("\r\n"));
+                message = message + paramsString + "\r\n";
             }
         }
-        log(message, logIt.level());
+        log(message, annotation.level());
     }
 
     private void logMethodReturn(long executionTime, String methodName, boolean isVoid, Object result, LogIt logIt) {
