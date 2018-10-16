@@ -25,27 +25,30 @@ package io.lenar.easy.log;
 
 import io.lenar.easy.log.annotations.LogIt;
 
+import io.lenar.easy.log.support.signature.AnnotatedInterfaceSignature;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 import static io.lenar.easy.log.ExceptionLogger.logException;
-import static io.lenar.easy.log.support.PJPSupport.hasMethodLevelLogItAnnotation;
 
 public class EasyLoggerNoSpring extends UneasyLogger {
 
     public Object logItClassLevel(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
-        if (hasMethodLevelLogItAnnotation(jp)) {
+        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature(jp, annotation, false);
+        if (signature.hasTargetMethodAnnotation()) {
             return jp.proceed(jp.getArgs());
         }
-        return logMethod(jp, annotation);
+        return logMethod(signature);
     }
 
     public Object logItMethodLevel(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
-        return logMethod(jp, annotation);
+        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature(jp, annotation, true);
+        return logMethod(signature);
     }
 
     public void logExceptionClassLevel(JoinPoint jp, LogIt annotation, Throwable e) {
-        if (!hasMethodLevelLogItAnnotation((ProceedingJoinPoint) jp)) {
+        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature((ProceedingJoinPoint) jp, annotation, false);
+        if (!signature.hasTargetMethodAnnotation()) {
             logException(jp, annotation, e);
         }
     }

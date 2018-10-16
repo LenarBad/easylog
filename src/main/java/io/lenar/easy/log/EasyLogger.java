@@ -25,6 +25,7 @@ package io.lenar.easy.log;
 
 import io.lenar.easy.log.annotations.LogIt;
 
+import io.lenar.easy.log.support.signature.AnnotatedInterfaceSignature;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -33,7 +34,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 
 import static io.lenar.easy.log.ExceptionLogger.logException;
-import static io.lenar.easy.log.support.PJPSupport.*;
 
 @Aspect
 public class EasyLogger extends UneasyLogger {
@@ -43,20 +43,23 @@ public class EasyLogger extends UneasyLogger {
 
     @Around("anyMethod() && @within(annotation)")
     public Object logItClassLevel(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
-        if (hasTargetMethodLevelLogItAnnotation(jp)) {
+        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature(jp, annotation, false);
+        if (signature.hasTargetMethodAnnotation()) {
             return jp.proceed(jp.getArgs());
         }
-        return logMethod(jp, annotation);
+        return logMethod(signature);
     }
 
     @Around("anyMethod() && @annotation(annotation)")
     public Object logItMethodLevel(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
-        return logMethod(jp, annotation);
+        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature(jp, annotation, true);
+        return logMethod(signature);
     }
 
     @AfterThrowing(pointcut = "anyMethod() && @within(annotation)", throwing = "e")
     public void logExceptionClassLevel(JoinPoint  jp, LogIt annotation, Throwable e) {
-        if (!hasTargetMethodLevelLogItAnnotation((ProceedingJoinPoint) jp)) {
+        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature((ProceedingJoinPoint) jp, annotation, false);
+        if (!signature.hasTargetMethodAnnotation()) {
             logException(jp, annotation, e);
         }
     }
