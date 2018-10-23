@@ -72,7 +72,7 @@ public class Signature {
 
     public String[] methodParameterNames() {
         if (methodParameterNames != null) return methodParameterNames;
-        if (isInterface()) {
+        if (isInterface() && targetMethod != null) {
             methodParameterNames = Arrays.stream(targetMethod().getParameters())
                     .map(parameter -> parameter.getName())
                     .collect(Collectors.toList())
@@ -88,7 +88,7 @@ public class Signature {
             try {
                 targetMethod = jp.getTarget().getClass().getDeclaredMethod(methodSignature().getMethod().getName(), methodParameterTypes);
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
+                //do nothing
             }
         }
         return targetMethod;
