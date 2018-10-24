@@ -26,6 +26,8 @@ package io.lenar.easy.log;
 import io.lenar.easy.log.annotations.LogIt;
 
 import io.lenar.easy.log.support.signature.AnnotatedInterfaceSignature;
+import io.lenar.easy.log.support.signature.EasyLogSignature;
+import io.lenar.easy.log.support.signature.JPSignature;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 
@@ -34,16 +36,24 @@ import static io.lenar.easy.log.ExceptionLogger.logException;
 public class EasyLoggerNoSpring extends UneasyLogger {
 
     public Object logItClassLevel(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
-        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature(jp, annotation, false);
-        if (signature.hasTargetMethodAnnotation()) {
+//        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature(jp, annotation, false);
+//        if (signature.hasTargetMethodAnnotation()) {
+//            return jp.proceed(jp.getArgs());
+//        }
+//        return logMethod(signature);
+
+        EasyLogSignature signature = new EasyLogSignature(new JPSignature(jp));
+        if (signature.hasMethodLevelAnnotation()) {
             return jp.proceed(jp.getArgs());
         }
-        return logMethod(signature);
+        return logMethod(signature, jp);
     }
 
     public Object logItMethodLevel(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
-        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature(jp, annotation, true);
-        return logMethod(signature);
+//        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature(jp, annotation, true);
+//        return logMethod(signature);
+        EasyLogSignature signature = new EasyLogSignature(new JPSignature(jp));
+        return logMethod(signature, jp);
     }
 
     public void logExceptionClassLevel(JoinPoint jp, LogIt annotation, Throwable e) {

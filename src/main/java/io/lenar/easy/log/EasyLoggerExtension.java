@@ -24,18 +24,29 @@
 package io.lenar.easy.log;
 
 import io.lenar.easy.log.support.signature.AnnotatedInterfaceSignature;
+import io.lenar.easy.log.support.signature.EasyLogSignature;
+import io.lenar.easy.log.support.signature.JPSignature;
 import org.aspectj.lang.ProceedingJoinPoint;
 
 public class EasyLoggerExtension extends UneasyLogger {
 
     public Object logIfMethodHasAnnotatedInterface(ProceedingJoinPoint jp) throws Throwable {
-        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature(jp);
-        if (signature.hasTargetMethodAnnotation() || signature.hasTargetClassAnnotation()) {
+        EasyLogSignature signature = new EasyLogSignature(new JPSignature(jp));
+
+//        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature(jp);
+//        if (signature.hasTargetMethodAnnotation() || signature.hasTargetClassAnnotation()) {
+//            return jp.proceed(jp.getArgs());
+//        }
+//
+//        if (signature.hasInterfaceLevelAnnotation() || signature.hasInterfaceMethodAnnotation()) {
+//            return logMethod(signature);
+//        }
+        if (signature.hasMethodLevelAnnotation() || signature.hasClassLevelAnnotation()) {
             return jp.proceed(jp.getArgs());
         }
 
-        if (signature.hasInterfaceLevelAnnotation() || signature.hasInterfaceMethodAnnotation()) {
-            return logMethod(signature);
+        if (signature.hasInterfaceLevelAnnotation() || signature.hasInterfaceMethodLevelAnnotation()) {
+            return logMethod(signature, jp);
         }
 
         return jp.proceed(jp.getArgs());
