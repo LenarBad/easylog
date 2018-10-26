@@ -32,9 +32,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import io.lenar.easy.log.annotations.Level;
-import io.lenar.easy.log.annotations.LogIt;
 import io.lenar.easy.log.annotations.Style;
-import io.lenar.easy.log.support.signature.AnnotatedInterfaceSignature;
+import io.lenar.easy.log.support.signature.EasyLogSignature;
+import io.lenar.easy.log.support.signature.SignatureMap;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.slf4j.LoggerFactory;
 
@@ -42,43 +42,35 @@ public class UneasyLogger {
 
     private static org.slf4j.Logger logger = LoggerFactory.getLogger(UneasyLogger.class);
 
-    protected  Object logMethod(AnnotatedInterfaceSignature signature) throws Throwable {
-        LogIt annotation = signature.effectiveAnnotation();
+    protected SignatureMap signatures =  new SignatureMap();
+
+    protected  Object logMethod(EasyLogSignature signature, ProceedingJoinPoint jp) throws Throwable {
         try {
-            logMethodInvocation(signature);
+            logMethodInvocation(signature, jp);
         } catch (Exception ex){
-            log("Failed to process and log method's parameters \r\n" + signature.getMethodSignatureAsString(true),
-                    annotation.level());
+            log("Failed to log method's parameters \r\n" + signature.methodSignatureWithModifiers(), signature.level());
         }
 
         long startTime = System.currentTimeMillis();
-        Object result = proceedWithRetry(signature.jp, annotation);
+        Object result = proceedWithRetry(jp, signature);
         long endTime = System.currentTimeMillis();
 
         try {
-            logMethodReturn(
-                    endTime - startTime,
-                    signature.getMethodSignatureAsString(false),
-                    signature.isVoid(),
-                    result,
-                    annotation);
+            logMethodReturn(endTime - startTime, result, signature);
         } catch (Exception ex) {
-            log("Failed to process and log method's return \r\n" +
-                            signature.getMethodSignatureAsString(false),
-                    annotation.level());
+            log("Failed to log method's return \r\n" + signature.methodSignatureWithoutModifiers(), signature.level());
         }
 
         return result;
     }
 
-    private void logMethodInvocation(AnnotatedInterfaceSignature signature) {
-        String methodName = signature.getMethodSignatureAsString(true);
+    private void logMethodInvocation(EasyLogSignature signature, ProceedingJoinPoint jp) {
+        String methodName = signature.methodSignatureWithModifiers();
 
-        LogIt annotation = signature.effectiveAnnotation();
-        Map<String, Object> params = signature.getMethodParameters(annotation.ignoreParameters());
-        String label = annotation.label();
-        Style style = annotation.style();
-        String[] maskFields = annotation.maskFields();
+        Map<String, Object> params = signature.getMethodParameters(jp.getArgs());
+        String label = signature.label();
+        Style style = signature.style();
+        String[] maskFields = signature.maskFields();
 
         String message = "\r\n-> " + methodName + "\r\n";
         if (!label.isEmpty()) message = "\r\n" + label + message;
@@ -93,37 +85,37 @@ public class UneasyLogger {
                 message = message + paramsString + "\r\n";
             }
         }
-        log(message, annotation.level());
+        log(message, signature.level());
     }
 
-    private void logMethodReturn(long executionTime, String methodName, boolean isVoid, Object result, LogIt logIt) {
+    private void logMethodReturn(long executionTime, Object result, EasyLogSignature signature) {
         String message = "\nExecution/Response time:  " + executionTime + "ms\n";
-        if (!logIt.label().isEmpty()) message = message + logIt.label() + "\n";
-        message = message + "<- " + methodName + "\n";
-        if (!isVoid) {
-            if (logIt.style() != AS_IS) {
-                message = message + objectToString(result, logIt.maskFields(), logIt.style().prettyPrint, logIt.style().logNulls) + "\n";
+        if (!signature.label().isEmpty()) message = message + signature.label() + "\n";
+        message = message + "<- " + signature.methodSignatureWithoutModifiers() + "\n";
+        if (!signature.isVoid()) {
+            if (signature.style() != AS_IS) {
+                message = message + objectToString(result, signature.maskFields(), signature.style().prettyPrint, signature.style().logNulls) + "\n";
             } else {
                 message = message + result.toString() + "\n";
             }
         }
-        log(message, logIt.level());
+        log(message, signature.level());
     }
 
-    private Object proceedWithRetry(ProceedingJoinPoint jp, LogIt logIt) throws Throwable {
-        int attempts = logIt.retryAttempts() < 0 ? 0 : logIt.retryAttempts();
-        long delay = logIt.retryDelay() < 0 ? 0 : logIt.retryDelay();
+    private Object proceedWithRetry(ProceedingJoinPoint jp, EasyLogSignature signature) throws Throwable {
+        int attempts = signature.retryAttempts() < 0 ? 0 : signature.retryAttempts();
+        long delay = signature.retryDelay() < 0 ? 0 : signature.retryDelay();
         try {
             return jp.proceed(jp.getArgs());
         } catch (Throwable ex) {
-            if (attempts >= 1 && isRetryException(ex, logIt)) {
+            if (attempts >= 1 && isRetryException(ex, signature)) {
                 for (int attempt = 1; attempt <= attempts; attempt++) {
                     try {
-                        logRetry(jp, attempt, delay, attempts, logIt.label(), ex);
+                        logRetry(jp, attempt, delay, attempts, signature.label(), ex);
                         Thread.sleep(delay);
                         return jp.proceed(jp.getArgs());
                     } catch (Throwable retryException) {
-                        if (!isRetryException(retryException, logIt)) {
+                        if (!isRetryException(retryException, signature)) {
                             throw  retryException;
                         }
                     }
@@ -144,8 +136,8 @@ public class UneasyLogger {
                 delay);
     }
 
-    private boolean isRetryException(Throwable thrownException, LogIt logIt) {
-        return Stream.of(logIt.retryExceptions())
+    private boolean isRetryException(Throwable thrownException, EasyLogSignature signature) {
+        return Stream.of(signature.retryExceptions())
                 .anyMatch(item -> item.isAssignableFrom(thrownException.getClass()));
     }
 
