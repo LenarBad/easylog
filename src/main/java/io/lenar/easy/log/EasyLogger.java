@@ -25,9 +25,7 @@ package io.lenar.easy.log;
 
 import io.lenar.easy.log.annotations.LogIt;
 
-import io.lenar.easy.log.support.signature.AnnotatedInterfaceSignature;
 import io.lenar.easy.log.support.signature.EasyLogSignature;
-import io.lenar.easy.log.support.signature.JPSignature;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
@@ -45,11 +43,7 @@ public class EasyLogger extends UneasyLogger {
 
     @Around("anyMethod() && @within(annotation)")
     public Object logItClassLevel(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
-        EasyLogSignature signature = new EasyLogSignature(new JPSignature(jp));
-//        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature(jp, annotation, false);
-//        if (signature.hasTargetMethodAnnotation()) {
-//            return jp.proceed(jp.getArgs());
-//        }
+        EasyLogSignature signature = signatures.get(jp);
         if (signature.hasMethodLevelAnnotation()) {
             return jp.proceed(jp.getArgs());
         }
@@ -58,15 +52,14 @@ public class EasyLogger extends UneasyLogger {
 
     @Around("anyMethod() && @annotation(annotation)")
     public Object logItMethodLevel(ProceedingJoinPoint jp, LogIt annotation) throws Throwable {
-        EasyLogSignature signature = new EasyLogSignature(new JPSignature(jp));
-//        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature(jp, annotation, true);
+        EasyLogSignature signature = signatures.get(jp);
         return logMethod(signature, jp);
     }
 
     @AfterThrowing(pointcut = "anyMethod() && @within(annotation)", throwing = "e")
     public void logExceptionClassLevel(JoinPoint  jp, LogIt annotation, Throwable e) {
-        AnnotatedInterfaceSignature signature = new AnnotatedInterfaceSignature((ProceedingJoinPoint) jp, annotation, false);
-        if (!signature.hasTargetMethodAnnotation()) {
+        EasyLogSignature signature = signatures.get((ProceedingJoinPoint) jp);
+        if (!signature.hasMethodLevelAnnotation()) {
             logException(jp, annotation, e);
         }
     }

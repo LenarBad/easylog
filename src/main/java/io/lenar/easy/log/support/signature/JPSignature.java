@@ -57,12 +57,17 @@ public class JPSignature {
         setClassAnnotations(jp);
         setInterfaceAnnotations(jp);
         setEffectiveAnnotation();
+        if (isAnnotated) {
+            isJavaxWsRsInterface = jp.getSignature().getDeclaringType().isAnnotationPresent(javax.ws.rs.Path.class)
+                    || methodSignature.getMethod().isAnnotationPresent(javax.ws.rs.Path.class);
 
-        isJavaxWsRsInterface = jp.getSignature().getDeclaringType().isAnnotationPresent(javax.ws.rs.Path.class)
-                || methodSignature.getMethod().isAnnotationPresent(javax.ws.rs.Path.class);
+            methodSignatureWithModifiers = getMethodSignatureAsString(jp, true);
+            methodSignatureWithoutModifiers = getMethodSignatureAsString(jp, false);
+        } else {
+            // We don't need anything if not annotated
+        }
 
-        methodSignatureWithModifiers = getMethodSignatureAsString(jp, true);
-        methodSignatureWithoutModifiers = getMethodSignatureAsString(jp, false);
+
     }
 
     public String methodSignatureWithModifiers() {

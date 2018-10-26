@@ -23,10 +23,8 @@ public class EasyLogSignature {
 
     private String returnedType;
     private boolean isVoid;
-//    private boolean isInterface;
-//    private boolean isJavaxWsRsInterface;
+
     private String[] paramNames;
-//    private Class<?>[] paramTypes;
 
     private String methodSignatureWithModifiers;
     private String methodSignatureWithoutModifiers;
@@ -48,7 +46,6 @@ public class EasyLogSignature {
             retryExceptions = signature.effectiveAnnotation().retryExceptions();
 
             paramNames = signature.paramNames();
-//            paramTypes = signature.paramTypes();
 
             methodSignatureWithModifiers = signature.methodSignatureWithModifiers();
             methodSignatureWithoutModifiers = signature.methodSignatureWithoutModifiers();
@@ -56,7 +53,6 @@ public class EasyLogSignature {
             hasClassLevelAnnotation = signature.hasClassLevelAnnotation();
             hasInterfaceMethodLevelAnnotation = signature.hasInterfaceMethodLevelAnnotation();
             hasInterfaceLevelAnnotation = signature.hasInterfaceLevelAnnotation();
-            returnedType = signature.returnedType();
             isVoid = signature.isVoid();
         }
 
@@ -82,10 +78,6 @@ public class EasyLogSignature {
 
     public boolean isVoid() {
         return isVoid;
-    }
-
-    public String returnedType() {
-        return returnedType;
     }
 
     public String methodSignatureWithModifiers() {
@@ -126,10 +118,6 @@ public class EasyLogSignature {
 
     public String[] maskFields() {
         return maskFields;
-    }
-
-    public String[] ignoreParameters() {
-        return ignoreParameters;
     }
 
     public int retryAttempts() {
