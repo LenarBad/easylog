@@ -98,7 +98,7 @@ Second, you need to add 2 dependencies
     <dependency>
         <groupId>io.lenar</groupId>
         <artifactId>easy-log</artifactId>
-        <version>1.2.0</version>
+        <version>1.3.0</version>
     </dependency>
     <dependency>
         <groupId>org.springframework.boot</groupId>
