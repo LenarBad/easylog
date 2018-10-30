@@ -134,7 +134,7 @@ First, you need to add <code>io.lenar:easy-log:{{ site.easylog_version }}</code>
     <dependency>
         <groupId>io.lenar</groupId>
         <artifactId>easy-log</artifactId>
-        <version>1.2.0</version>
+        <version>1.3.0</version>
     </dependency>
 ```
 
