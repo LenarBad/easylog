@@ -1,4 +1,6 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.lenar/easy-log.svg)](https://maven-badges.herokuapp.com/maven-central/io.lenar/easy-log)
+[![Hits-of-Code](https://hitsofcode.com/github/lenarbad/easylog)](https://hitsofcode.com/view/github/lenarbad/easylog)
+
 
 [https://lenar.io/easylog/](https://lenar.io/easylog/)
 
