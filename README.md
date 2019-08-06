@@ -1,5 +1,5 @@
 [![Maven Central](https://img.shields.io/maven-central/v/io.lenar/easy-log.svg)](https://maven-badges.herokuapp.com/maven-central/io.lenar/easy-log)
-https://travis-ci.com/LenarBad/easylog.svg?branch=master
+![Build Status](https://travis-ci.com/LenarBad/easylog.svg?branch=master)
 [![Hits of Code](https://hitsofcode.com/github/lenarbad/easylog)](https://hitsofcode.com/view/github/lenarbad/easylog)
 [![Lines of Code](https://tokei.rs/b1/github/lenarbad/easylog)](https://github.com/lenarbad/easylog)
 
