@@ -1,4 +1,4 @@
-![GitHub](https://img.shields.io/github/license/lenarbad/easy-log)
+![GitHub](https://img.shields.io/github/license/lenarbad/easylog)
 [![Maven Central](https://img.shields.io/maven-central/v/io.lenar/easy-log.svg)](https://maven-badges.herokuapp.com/maven-central/io.lenar/easy-log)
 
 ![Build Status](https://travis-ci.com/LenarBad/easylog.svg?branch=master)
